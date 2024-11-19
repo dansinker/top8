@@ -11,7 +11,7 @@ body.default {
 
 
 #logo, #footer {
-    background-color: var(--logo-color);
+    background-color: var(--logobox-color);
     margin-bottom: 30px;
     margin-top: 30px;
     margin-left: auto;
@@ -25,11 +25,12 @@ body.default {
     text-align: center;
 }
 
-#logo img {
-    width: 200px;
+#logo svg {
+    width: 250px;
     padding: 15px;
     margin-left: 10px;
-    color: white;
+    fill:var(--logo-color);
+
 }
 
 #wrapper {
@@ -102,9 +103,9 @@ iframe {
 
 
 #top8box h1, #postbox h1, .box h1 {
-    background-color: var(--h1-color);
+    background-color: var(--header-color);
     border-bottom: 1px solid white;
-    color: white;
+    color: var(--h1-color);
     margin-left: -11px;
     margin-right: -10px;
     margin-top: -10px;
@@ -145,41 +146,51 @@ p.post:last-child {
 .pink {
     --background-color: rgb(232, 177, 227, 0.6);
     --picker-color: #da03d0;
-    --h1-color: #da03d0;
+    --header-color: #da03d0;
+    --h1-color: #2b0425;
     --font-color: #000000;
-    --logo-color: #740764;
+    --logobox-color: #740764;
+    --logo-color: white;
     --background-image: url(images/390g.gif);
   }
   .dark-blue {
     --background-color: #172A3A80;
     --picker-color: #172A3A;
     --h1-color: #000000;
+    --header-color: white;
     --font-color: #eee;
-    --logo-color: #0d1589;
+    --logobox-color: #0d1589;
+    --logo-color: white;
     --background-image: url(images/4f.gif);
   }
   .almond {
     --background-color: #d9c5b290;
     --picker-color: #d9c5b2;
-    --h1-color: #c57d00;
+    --header-color: #c57d00;
+    --h1-color: white;
     --font-color: #000000;
-    --logo-color: #764d05;
+    --logobox-color: #764d05;
+    --logo-color: #c57d00;
     --background-image: url(images/169b.jpg);
   }
   .vampire {
     --background-color: #00000080;
     --picker-color: #000000;
-    --h1-color: #6e0505;
+    --header-color: #6e0505;
+    --h1-color: white;
     --font-color: #f5efef;
-    --logo-color: #000000;
+    --logobox-color: #6e0505;
+    --logo-color: white;
     --background-image: url(images/206c.gif);
   }
   .toxic {
     --background-color: #e5ff00b6;
     --picker-color: #06b72c;
-    --h1-color: #0b6533;
+    --header-color: #0b6533;
+    --h1-color: rgb(246, 255, 0);
     --font-color: #000000;
-    --logo-color: #073e1a;
+    --logobox-color: #073e1a;
+    --logo-color: rgb(246, 255, 0);
     --background-image: url(images/215b.gif);
   }
 
@@ -187,34 +198,42 @@ p.post:last-child {
     --background-color: #ff00f7b6;
     --picker-color: #b923ff;
     --h1-color: #00fbffb1;
+    --header-color: #000000;
     --font-color: #afef9b;
-    --logo-color: #ff00f7b6;
+    --logobox-color: #ff00f7b6;
+    --logo-color: #afef9b;
     --background-image: url(images/176z.gif);
   }
 
   .angels {
     --background-color: #98e1f3b6;
     --picker-color: #98e1f3;
-    --h1-color: #acf3ccc8;
+    --header-color: #acf3ccc8;
+    --h1-color: #426889;
     --font-color: #3a0d30;
-    --logo-color: #acf3ccc4;
+    --logobox-color: #acf3ccc4;
+    --logo-color: #426889;
     --background-image: url(images/76a.jpg)
   }
 
   .night {
     --background-color: #3a0d30;
-    --h1-color: #bb4100;
+    --h1-color: white;
+    --header-color: #bb4100;
     --picker-color: #bb4100;
     --font-color: #afafaf;
-    --logo-color: #bb4100;
+    --logobox-color: #bb4100;
+    --logo-color: white;
     --background-image: url(images/1128n.gif)
   }
 
   .pastel {
     --background-color: #ffd4f6;
     --h1-color: #e2acd9;
+    --header-color: #65335c;
     --picker-color: #e2acd9;
     --font-color: #afafaf;
+    --logobox-color: #65335c;
     --logo-color: #be87b5;
     --background-image: url(images/639d.jpg)
   }

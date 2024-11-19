@@ -185,25 +185,47 @@
           </div>
 
     </div>
-
-
-<template x-if="person.mast_id" >
-    <div id="postbox" x-data="{ blogs: {}}" 
-    x-init="fetch(`https://omfg.town/api/v1/accounts/${person.mast_id}/statuses?exclude_reblogs=true&exclude_replies=true&limit=6`)
-        .then((response) => response.json())
-        .then(data => blogs = data)
-        .then((data) => console.log(data))
-        ">
-    <h1>My latest blog entries</h1>
-    <ul>
-    <template x-for="blog in blogs">
-        <p class="post">
-            <span x-html="blog.content"></span>
-        </p> 
+    <template x-if="person.bsky_handle">
+        <div id="postbox" x-data="{ blogs: [] }" 
+             x-init="
+                fetch(`https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=${person.bsky_handle}&limit=12`)
+                    .then(response => response.json())
+                    .then(data => {
+                        blogs = data.feed
+                            .filter(item => {
+                                const record = item.post.record;
+                                const embed = item.post.embed;
+    
+                                // Exclude replies, reposts, and quote posts
+                                return !record.reply && !record.repost && !(embed?.type === 'repost') && !(embed?.type === 'quote');
+                            })
+                            .map(item => ({
+                                text: item.post.record.text,
+                                createdAt: item.post.record.createdAt,
+                                author: {
+                                    name: item.post.author.displayName || item.post.author.handle,
+                                    handle: item.post.author.handle,
+                                    avatar: item.post.author.avatar,
+                                    url: `https://bsky.app/profile/${item.post.author.handle}`,
+                                },
+                                uri: item.post.uri,
+                            }));
+                    });
+             ">
+            <h1>My Latest Posts</h1>
+                <template x-for="blog in blogs" :key="blog.uri">
+                    <div class="post">
+                        <p x-html="blog.text"></p>
+                        <div class="post-meta">
+                            <a :href="blog.author.url" target="_blank">
+                                <span x-text="blog.author.name"></span> (@<span x-text="blog.author.handle"></span>)
+                            </a>
+                            <span x-text="new Date(blog.createdAt).toLocaleString()"></span>
+                        </div>
+                    </div>
+        </div>
     </template>
-    </ul>
-</template>
-</div>
+        
 
 </div>
 

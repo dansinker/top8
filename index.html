@@ -106,7 +106,7 @@
         <div id="leftcolumn">
         <div id="addbox" class="box" x-show="person.name == null">
             <h1>enter your Bluesky handle with server</h1>
-            <input type="text" placeholder="username@yourserver.server" x-model="username">
+            <input type="text" placeholder="username.bsky.social" x-model="username">
             <button @click="initPerson(this, person, username)">add</button>
         </div>
         <div id="profilebox" class="box" :hidden="!(person.name)">
@@ -137,7 +137,7 @@
             <h1 id="titleline">My Top <span x-text="friends.length"></span></h1>
             <form @submit.prevent="addFriend">
               <label for="new-friend">Enter a new friend:</label>
-              <input id="new-friend" type="text" x-model="newFriend" placeholder="yourfrined@friend.server">
+              <input id="new-friend" type="text" x-model="newFriend" placeholder="yourfriend.bsky.social">
               <button type="submit">Add friend</button>
             </form>
           

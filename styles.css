@@ -172,7 +172,7 @@ p.post:last-child {
     --h1-color: #6e0505;
     --font-color: #f5efef;
     --logo-color: #000000;
-    --background-image: url(images/206c.gif)
+    --background-image: url(images/206c.gif);
   }
   .toxic {
     --background-color: #e5ff00b6;
@@ -180,7 +180,16 @@ p.post:last-child {
     --h1-color: #0b6533;
     --font-color: #000000;
     --logo-color: #073e1a;
-    --background-image: url(images/215b.gif)
+    --background-image: url(images/215b.gif);
+  }
+
+  .shoes {
+    --background-color: #ff00f7b6;
+    --picker-color: #ff28d0;
+    --h1-color: #00fbff;
+    --font-color: #afef9b;
+    --logo-color: #ff28d0;
+    --background-image: url(images/176z.gif);
   }
   /* Color Choice */
   .color-choice {

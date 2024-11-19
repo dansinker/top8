@@ -193,11 +193,11 @@ p.post:last-child {
   }
 
   .angels {
-    --background-color: #98e1f3;
+    --background-color: #98e1f3b6;
     --picker-color: #98e1f3;
-    --h1-color: #acf3cc;
+    --h1-color: #acf3ccc8;
     --font-color: #3a0d30;
-    --logo-color: #acf3cc;
+    --logo-color: #acf3ccc4;
     --background-image: url(images/76a.jpg)
   }
   /* Color Choice */

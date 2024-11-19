@@ -77,6 +77,8 @@ function theme() {
             'toxic',
             'shoes',
             'angels',
+            'night',
+            'pastel'
         ],
         themeClass: {},
         choiceClass(className) {

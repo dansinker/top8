@@ -144,7 +144,7 @@ p.post:last-child {
 /* Color Themes */
 .pink {
     --background-color: rgb(232, 177, 227, 0.6);
-    --picker-color: rgb(232, 177, 227);
+    --picker-color: #da03d0;
     --h1-color: #da03d0;
     --font-color: #000000;
     --logo-color: #740764;
@@ -185,10 +185,10 @@ p.post:last-child {
 
   .shoes {
     --background-color: #ff00f7b6;
-    --picker-color: #ff28d0;
-    --h1-color: #00fbff;
+    --picker-color: #b923ff;
+    --h1-color: #00fbffb1;
     --font-color: #afef9b;
-    --logo-color: #ff28d0;
+    --logo-color: #ff00f7b6;
     --background-image: url(images/176z.gif);
   }
 
@@ -200,6 +200,25 @@ p.post:last-child {
     --logo-color: #acf3ccc4;
     --background-image: url(images/76a.jpg)
   }
+
+  .night {
+    --background-color: #3a0d30;
+    --h1-color: #bb4100;
+    --picker-color: #bb4100;
+    --font-color: #afafaf;
+    --logo-color: #bb4100;
+    --background-image: url(images/1128n.gif)
+  }
+
+  .pastel {
+    --background-color: #ffd4f6;
+    --h1-color: #e2acd9;
+    --picker-color: #e2acd9;
+    --font-color: #afafaf;
+    --logo-color: #be87b5;
+    --background-image: url(images/639d.jpg)
+  }
+
   /* Color Choice */
   .color-choice {
     height: 30px;

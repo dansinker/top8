@@ -1,0 +1,112 @@
+<html>
+<head>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="scripts.js"></script>
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body x-data="theme()" :class="themeClass" class="default">
+    <div id="wrapper">
+    <div id="logo">
+        <img src="images/top8.svg" alt="top 8 dot space">
+    </div>
+
+    <!--left column start-->
+    <div id="wholething" x-data="{ person: {}, username: '' }">
+        <div id="leftcolumn">
+        <div id="addbox" class="box" x-show="person.name == null">
+            <h1>enter your Mastodon id with server</h1>
+            <input type="text" placeholder="username@yourserver.server" x-model="username">
+            <button @click="initPerson(this, person, username)">add</button>
+        </div>
+        <div id="profilebox" class="box" :hidden="!(person.name)">
+                        <h1><span x-text="person.name"></h1>
+            <p><img x-bind:src="person.avatar"></p>
+            <h2><a x-bind:href="person.mast_url"><span x-text="person.mast_address"></span></a></h2>
+            <p x-html="person.note"></p>
+        </div>
+
+
+    <iframe style="border-radius:0px" src="https://open.spotify.com/embed/track/3akkNN6AHsgyptR3QYU3vN?utm_source=generator" width="320" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+
+    <div id="editbox" class="box">
+        <h1>choose your theme</h1>
+        <span class="color-theme-container">
+            <template x-for="(ct, index) in colorThemes" :key="index">
+                <span x-bind:class="choiceClass(ct)" @click="changeTheme(ct)"></span>
+            </template>
+        </span>
+    </div>
+</div>
+
+<!-- right column start-->
+<div id="rightcolumn">
+    <div id="top8box">
+
+        <div x-data="{ friends: [], newFriend: '' }">
+            <h1 id="titleline">My Top <span x-text="friends.length"></span></h1>
+            <form @submit.prevent="addFriend">
+              <label for="new-friend">Enter a new friend:</label>
+              <input id="new-friend" type="text" x-model="newFriend" placeholder="yourfrined@friend.server">
+              <button type="submit">Add friend</button>
+            </form>
+          
+            <ul>
+                <template x-for="friend in friends">
+                    <div class="friend" x-data="{ top8 : {}}"
+                    x-init="fetch(`https://omfg.town/api/v2/search?q=${friend}`)
+                        .then(response=> {
+                            if (!response.ok) alert(`Something went wrong: ${response.status} - ${response.statusText}`)
+                            return response.json()
+                        })
+                        .then(data => top8 = {
+                            name: data.accounts[0].display_name,
+                            mast_address: data.accounts[0].acct,
+                            mast_url: data.accounts[0].url,
+                            mast_id: data.accounts[0].id,
+                            avatar: data.accounts[0].avatar
+                            })
+                    ">
+                    <h2><span x-text="top8.name"></span></h2>
+                    <p><a x-bind:href="top8.mast_url"><img x-bind:src="top8.avatar"></a></p>
+                    </div>
+                        </template>
+            </ul>
+          
+            <script>
+              function addFriend() {
+                // Add the new item to the items array
+                this.friends.push(this.newFriend);
+                // Clear the newItem variable
+                this.newFriend = '';
+              }
+            </script>
+          </div>
+
+    </div>
+
+
+<template x-if="person.mast_id" >
+    <div id="postbox" x-data="{ blogs: {}}" 
+    x-init="fetch(`https://omfg.town/api/v1/accounts/${person.mast_id}/statuses?exclude_reblogs=true&exclude_replies=true&limit=6`)
+        .then((response) => response.json())
+        .then(data => blogs = data)
+        .then((data) => console.log(data))
+        ">
+    <h1>My latest blog entries</h1>
+    <ul>
+    <template x-for="blog in blogs">
+        <p class="post">
+            <span x-html="blog.content"></span>
+        </p> 
+    </template>
+    </ul>
+</template>
+</div>
+
+</div>
+
+</div>
+
+</body>
+</html>

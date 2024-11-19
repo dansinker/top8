@@ -1,0 +1,226 @@
+body {
+    font-family: sans-serif;
+    background-attachment:fixed;
+    background-repeat:repeat;
+}
+
+body.default {
+    background-color: lightblue;
+    color: black;
+}
+
+
+#logo, #footer {
+    background-color: var(--logo-color);
+    margin-bottom: 30px;
+    margin-top: 30px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 1000px;
+    border: 1px solid white;
+}
+
+#logo h1 {
+    color: white;
+    text-align: center;
+}
+
+#logo img {
+    width: 200px;
+    padding: 15px;
+    margin-left: 10px;
+    color: white;
+}
+
+#wrapper {
+}
+
+#wholething {
+    width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#leftcolumn {
+    float: left;
+    width: 320px;
+    padding: 10px;
+    padding-left: 0;
+    margin-right: 20px;
+    overflow: hidden;
+}
+
+#rightcolumn {
+    display: block;
+    overflow: hidden;
+}
+
+#profilebox {
+    overflow: hidden;
+    margin-bottom: 20px;
+    margin-top: -10px;
+}
+
+#profilebox img {
+    width: 300px;
+    border: 1px solid blue;
+}
+
+.box h1 {
+    background-color: var(--h1-color);
+    border-bottom: 1px solid white;
+    color: white;
+    padding: 10px;
+    font-size: 1em;
+}
+
+#editbutton {
+    float: right;
+}
+
+#profilebox h2 {
+    font-size: 1em;
+}
+
+#profilebox h2 a {
+    color: black;
+}
+
+iframe {
+    margin-bottom: 20px;
+}
+
+#top8box, #postbox, .box {
+    border: 1px solid white;
+    background-color: var(--background-color);
+    color: var(--font-color);
+    padding: 10px;
+    overflow: hidden;
+    max-width:700px;
+    margin-bottom: 20px;
+}
+
+
+#top8box h1, #postbox h1, .box h1 {
+    background-color: var(--h1-color);
+    border-bottom: 1px solid white;
+    color: white;
+    margin-left: -11px;
+    margin-right: -10px;
+    margin-top: -10px;
+    font-size: 1em;
+    padding: 10px;
+    overflow: hidden;
+}
+
+.friend {
+    float: left;
+    padding: 10px;
+}
+
+.friend img {
+    width: 120px;
+    border: 1px solid blue;
+}
+
+.friend h2 {
+    font-size: 1em;
+}
+
+p.post {
+    border-bottom: 1px solid white;
+}
+
+p.post img {
+    width: 200px;
+    margin-bottom: 10px;
+    margin-left: -10px;
+}
+
+p.post:last-child {
+    border-bottom: none;
+}
+
+/* Color Themes */
+.pink {
+    --background-color: rgb(232, 177, 227, 0.6);
+    --picker-color: rgb(232, 177, 227);
+    --h1-color: #da03d0;
+    --font-color: #000000;
+    --logo-color: #740764;
+    --background-image: url(images/390g.gif);
+  }
+  .dark-blue {
+    --background-color: #172A3A80;
+    --picker-color: #172A3A;
+    --h1-color: #000000;
+    --font-color: #eee;
+    --logo-color: #0d1589;
+    --background-image: url(images/4f.gif);
+  }
+  .almond {
+    --background-color: #d9c5b290;
+    --picker-color: #d9c5b2;
+    --h1-color: #c57d00;
+    --font-color: #000000;
+    --logo-color: #764d05;
+    --background-image: url(images/169b.jpg);
+  }
+  .vampire {
+    --background-color: #00000080;
+    --picker-color: #000000;
+    --h1-color: #6e0505;
+    --font-color: #f5efef;
+    --logo-color: #000000;
+    --background-image: url(images/206c.gif)
+  }
+  .toxic {
+    --background-color: #e5ff00b6;
+    --picker-color: #06b72c;
+    --h1-color: #0b6533;
+    --font-color: #000000;
+    --logo-color: #073e1a;
+    --background-image: url(images/215b.gif)
+  }
+  /* Color Choice */
+  .color-choice {
+    height: 30px;
+    width: 30px;
+    background-color: var(--picker-color);
+    border-radius: 50%;
+    border: 1px solid black;
+    display: inline-block;
+    margin-right: 2px;
+    cursor: pointer;
+  }
+  .color-choice:hover {
+    border: 1px solid white;
+  }
+  .color-theme-container {
+  }
+  /* Color Theme Application*/
+  body {
+    color: var(--font-color);
+    background-image: var(--background-image);
+  }
+
+  #footer p {
+    color: #e5ff00b6;
+    text-align: center;
+  }
+
+  @media (max-width: 768px) {
+
+    #wholething {
+        width: auto;
+    }
+
+    #logo, #footer {
+        width: auto;
+    }
+    #leftcolumn {
+        float: none;
+        width: auto;
+        margin-right: 0;
+    }
+  }

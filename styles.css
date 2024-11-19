@@ -191,6 +191,15 @@ p.post:last-child {
     --logo-color: #ff28d0;
     --background-image: url(images/176z.gif);
   }
+
+  .angels {
+    --background-color: #98e1f3;
+    --picker-color: #98e1f3;
+    --h1-color: #acf3cc;
+    --font-color: #3a0d30;
+    --logo-color: #acf3cc;
+    --background-image: url(images/76a.jpg)
+  }
   /* Color Choice */
   .color-choice {
     height: 30px;

@@ -76,6 +76,7 @@ function theme() {
             'vampire', // #04A777
             'toxic',
             'shoes',
+            'angels',
         ],
         themeClass: {},
         choiceClass(className) {

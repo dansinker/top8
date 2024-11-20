@@ -7,10 +7,7 @@
 
         <!-- External Dependencies -->
         <!-- Alpine.js -->
-        <script
-            defer
-            src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
-        ></script>
+        <script defer src="js/vendor/alpine.min.js"></script>
 
         <!-- Our class-based modules -->
         <script src="js/config.js"></script>
@@ -18,6 +15,7 @@
         <script src="js/profile.js"></script>
         <script src="js/storage.js"></script>
         <script src="js/theme.js"></script>
+        <script src="js/posts.js"></script>
 
         <!-- Alpine.js integration -->
         <script src="js/alpine-integration.js"></script>
@@ -158,27 +156,24 @@
                     </div>
 
                     <!-- Posts Section -->
+                    <!-- Replace the existing Posts Section in index.html with this: -->
                     <template x-if="person.bsky_handle">
-                        <div
-                            id="postbox"
-                            x-data="{ blogs: [] }"
-                            x-init="fetch(`https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=${person.bsky_handle}&limit=12`)
-                            .then(response => response.json())
-                            .then(data => {
-                                blogs = data.feed
-                                    .filter(item => !item.post.record.reply && !item.post.record.repost)
-                                    .map(item => ({
-                                        text: item.post.record.text,
-                                        createdAt: item.post.record.createdAt,
-                                        author: {
-                                            name: item.post.author.displayName || item.post.author.handle,
-                                            handle: item.post.author.handle,
-                                            url: `https://bsky.app/profile/${item.post.author.handle}`
-                                        }
-                                    }));
-                            })"
-                        >
+                        <div id="postbox" x-data="posts">
                             <h1>My Latest Posts</h1>
+
+                            <!-- Loading State -->
+                            <div x-show="loading" class="loading">
+                                Loading posts...
+                            </div>
+
+                            <!-- Error State -->
+                            <div
+                                x-show="error"
+                                class="error"
+                                x-text="error"
+                            ></div>
+
+                            <!-- Posts -->
                             <template x-for="blog in blogs" :key="blog.uri">
                                 <div class="post">
                                     <p x-html="blog.text"></p>
@@ -201,6 +196,14 @@
                                     </div>
                                 </div>
                             </template>
+
+                            <!-- No Posts State -->
+                            <div
+                                x-show="!loading && !error && blogs.length === 0"
+                                class="no-posts"
+                            >
+                                No posts found
+                            </div>
                         </div>
                     </template>
                 </div>

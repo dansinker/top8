@@ -5,6 +5,8 @@ document.addEventListener("alpine:init", () => {
     const profileManager = new ProfileManager(authManager);
     const themeManager = new ThemeManager();
     const storageManager = new StorageManager();
+    const postsManager = new PostManager();
+    Alpine.store("person", {});
 
     // Register the theme component
     Alpine.data("theme", () => ({
@@ -56,11 +58,11 @@ document.addEventListener("alpine:init", () => {
         loading: false,
         friends: [],
         newFriend: "",
-    
+
         init() {
             this.checkStoredSession();
         },
-    
+
         logout() {
             authManager.clearTokens();
             StorageManager.clearAuthData();
@@ -75,6 +77,7 @@ document.addEventListener("alpine:init", () => {
             if (stored) {
                 authManager.setTokens(stored.accessJwt, stored.refreshJwt);
                 this.person = stored.profile;
+                Alpine.store("person", stored.profile);
             }
         },
 
@@ -83,7 +86,7 @@ document.addEventListener("alpine:init", () => {
             this.loginError = "";
 
             try {
-                const authData = await authManager.authenticate(
+                authData = await authManager.authenticate(
                     this.username,
                     this.password,
                 );
@@ -92,6 +95,7 @@ document.addEventListener("alpine:init", () => {
                 );
 
                 this.person = profile;
+                Alpine.store("person", profile);
                 StorageManager.saveAuthData(authData, profile);
 
                 this.password = "";
@@ -111,6 +115,7 @@ document.addEventListener("alpine:init", () => {
             this.username = "";
             this.password = "";
             this.loginError = "";
+            Alpine.store("person", {});
         },
 
         addFriend() {
@@ -120,4 +125,39 @@ document.addEventListener("alpine:init", () => {
             }
         },
     }));
+
+    // Register the posts component
+    Alpine.data("posts", function () {
+        return {
+            blogs: [],
+            loading: true,
+            error: null,
+
+            init() {
+                // Use $watch to react to person changes
+                // let person = Alpine.store("person");
+
+                this.$watch("$store.person", async (person) => {
+                    if (person?.bsky_handle) {
+                        const postManager = new PostManager();
+                        const state = await postManager.loadPosts(
+                            person.bsky_handle,
+                        );
+                        this.blogs = state.blogs;
+                        this.loading = state.loading;
+                        this.error = state.error;
+                    }
+                });
+            },
+        };
+    });
 });
+
+if (window.Alpine && !window._alpineInitialized) {
+    window._alpineInitialized = true;
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", () => Alpine.start());
+    } else {
+        Alpine.start();
+    }
+}

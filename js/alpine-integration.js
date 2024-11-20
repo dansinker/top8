@@ -1,10 +1,8 @@
-// Wait for Alpine to be available
 document.addEventListener("alpine:init", () => {
     // Create instances of our managers
     const authManager = new AuthManager();
     const profileManager = new ProfileManager(authManager);
-    const themeManager = new PDSThemeManager(authManager); // Pass authManager
-    const storageManager = new StorageManager();
+    const themeManager = new PDSThemeManager(authManager);
     const postsManager = new PostManager();
 
     // Initialize the store
@@ -19,18 +17,26 @@ document.addEventListener("alpine:init", () => {
     });
 
     // Register the theme component
-    // Register the theme component
     Alpine.data("theme", () => ({
         colorThemes: [],
         themeClass: {},
         currentTheme: null,
 
-        init() {
+        async init() {
             this.colorThemes = themeManager.colorThemes;
-            const storedPerson = Alpine.store("person");
+            // Set a default theme immediately
+            this.themeClass = themeManager.getThemeClasses();
+            document.body.className = themeManager.colorThemes[0];
 
+            // If we have a logged-in user, initialize their theme
+            const storedPerson = Alpine.store("person");
             if (storedPerson?.bsky_handle) {
-                themeManager.initialize().catch(console.error);
+                try {
+                    await themeManager.initialize();
+                    this.themeClass = themeManager.getThemeClasses();
+                } catch (error) {
+                    console.error("Failed to initialize theme:", error);
+                }
             }
         },
 
@@ -52,52 +58,16 @@ document.addEventListener("alpine:init", () => {
         },
     }));
 
-    // Register the main app component
+    // Register the main app component with theme support
     Alpine.data("appState", () => ({
         person: {},
         username: "",
         password: "",
         loginError: "",
         loading: false,
-        friends: [],
-        newFriend: "",
 
-        init() {
-            this.checkStoredSession();
-        },
-
-        async logout() {
-            console.debug("[Logout] Starting logout process");
-            try {
-                // Clear auth tokens
-                console.debug("[Logout] Clearing auth tokens");
-                await authManager.clearTokens();
-
-                // Clear stored data
-                console.debug("[Logout] Clearing stored auth data");
-                await StorageManager.clearAuthData();
-
-                // Reset local state
-                console.debug("[Logout] Resetting local state");
-                this.person = {};
-                this.username = "";
-                this.password = "";
-                this.loginError = "";
-
-                // Reset Alpine stores
-                console.debug("[Logout] Resetting Alpine stores");
-                Alpine.store("person", {});
-                Alpine.store("state").setPerson({});
-
-                console.debug("[Logout] Logout completed successfully");
-            } catch (error) {
-                console.error("[Logout] Error during logout:", error);
-                // Still attempt to clear sensitive data even if error occurs
-                this.person = {};
-                this.username = "";
-                this.password = "";
-                throw new Error("Logout failed: " + error.message);
-            }
+        async init() {
+            await this.checkStoredSession();
         },
 
         async checkStoredSession() {
@@ -105,50 +75,23 @@ document.addEventListener("alpine:init", () => {
             try {
                 const stored = StorageManager.getStoredAuthData();
 
-                if (!stored) {
-                    console.debug("[Session] No stored session found");
-                    return;
-                }
-
-                console.debug("[Session] Found stored session data:", {
-                    hasAccessToken: !!stored.accessJwt,
-                    hasRefreshToken: !!stored.refreshJwt,
-                    hasProfile: !!stored.profile,
-                });
-
-                if (!stored.accessJwt || !stored.refreshJwt) {
-                    console.warn(
-                        "[Session] Incomplete token data in stored session",
-                    );
-                    StorageManager.clearAuthData();
-                    return;
-                }
-
-                if (!stored.profile) {
-                    console.warn(
-                        "[Session] Missing profile data in stored session",
-                    );
-                    StorageManager.clearAuthData();
-                    return;
-                }
-
-                console.debug("[Session] Setting tokens and profile");
-                try {
+                if (stored?.profile) {
                     authManager.setTokens(stored.accessJwt, stored.refreshJwt);
                     this.person = stored.profile;
                     Alpine.store("person", stored.profile);
                     Alpine.store("state").setPerson(stored.profile);
-                    console.debug("[Session] Successfully restored session");
-                } catch (error) {
-                    console.error(
-                        "[Session] Error setting session data:",
-                        error,
-                    );
-                    StorageManager.clearAuthData();
+
+                    // Initialize theme and update Alpine state
+                    await themeManager.initialize();
+                    const themeComponent = this.$store.theme;
+                    if (themeComponent) {
+                        themeComponent.themeClass =
+                            themeManager.getThemeClasses();
+                    }
                 }
             } catch (error) {
                 console.error(
-                    "[Session] Critical error checking stored session:",
+                    "[Session] Error checking stored session:",
                     error,
                 );
                 StorageManager.clearAuthData();
@@ -156,11 +99,7 @@ document.addEventListener("alpine:init", () => {
         },
 
         async loginUser() {
-            console.debug("[Login] Starting login process");
-
-            // Validate inputs before attempting login
             if (!this.username || !this.password) {
-                console.warn("[Login] Missing credentials");
                 this.loginError = "Please provide both username and password";
                 return;
             }
@@ -169,70 +108,67 @@ document.addEventListener("alpine:init", () => {
             this.loginError = "";
 
             try {
-                console.debug("[Login] Attempting authentication");
                 const authData = await authManager.authenticate(
                     this.username.trim(),
                     this.password,
                 );
 
-                if (!authData || !authData.handle) {
-                    console.error("[Login] Invalid auth data received");
-                    throw new Error("Invalid authentication response");
-                }
-
-                console.debug(
-                    "[Login] Authentication successful, fetching profile",
-                );
                 const profile = await profileManager.fetchProfile(
                     authData.handle,
                 );
-
-                if (!profile) {
-                    console.error("[Login] No profile data received");
-                    throw new Error("Failed to fetch user profile");
-                }
-
-                console.debug("[Login] Profile fetched successfully:", {
-                    handle: profile.handle,
-                    hasData: !!profile,
-                });
 
                 // Update all relevant stores/states
                 this.person = profile;
                 Alpine.store("person", profile);
                 Alpine.store("state").setPerson(profile);
 
-                console.debug("[Login] Saving auth data");
+                // Initialize theme immediately after login and update Alpine state
+                await themeManager.initialize();
+
+                // Update the theme component's state
+                const themeComponent = this.$store.theme;
+                if (themeComponent) {
+                    themeComponent.themeClass = themeManager.getThemeClasses();
+                }
+
                 StorageManager.saveAuthData(authData, profile);
 
                 // Clear sensitive data
                 this.password = "";
                 this.username = "";
-
-                console.debug("[Login] Login process completed successfully");
             } catch (error) {
                 console.error("[Login] Error during login process:", error);
-
-                // Provide more specific error messages
-                if (error.status === 401 || error.status === 403) {
-                    this.loginError =
-                        "Invalid credentials. Please check your username and password.";
-                } else if (error.message.includes("network")) {
-                    this.loginError =
-                        "Network error. Please check your connection and try again.";
-                } else {
-                    this.loginError =
-                        "Login failed: " +
-                        (error.message || "Unknown error occurred");
-                }
-
-                // Clear sensitive data on error
+                this.loginError = error.message || "Login failed";
                 this.password = "";
             } finally {
                 this.loading = false;
-                console.debug(
-                    "[Login] Login process finished, loading state cleared",
-                );
+            }
+        },
+
+        async logout() {
+            try {
+                await authManager.clearTokens();
+                await StorageManager.clearAuthData();
+
+                this.person = {};
+                this.username = "";
+                this.password = "";
+                this.loginError = "";
+
+                Alpine.store("person", {});
+                Alpine.store("state").setPerson({});
+
+                // Reset theme to default and update Alpine state
+                const defaultTheme = themeManager.colorThemes[0];
+                document.body.className = defaultTheme;
+                themeManager.currentTheme = defaultTheme;
+                const themeComponent = this.$store.theme;
+                if (themeComponent) {
+                    themeComponent.themeClass = themeManager.getThemeClasses();
+                }
+            } catch (error) {
+                console.error("[Logout] Error during logout:", error);
+                throw new Error("Logout failed: " + error.message);
             }
         },
     }));
@@ -332,4 +268,9 @@ document.addEventListener("alpine:init", () => {
             this.lastHandle = null;
         },
     }));
+
+    // Register the theme store
+    Alpine.store("theme", {
+        themeClass: themeManager.getThemeClasses(),
+    });
 });

@@ -3,7 +3,7 @@ document.addEventListener("alpine:init", () => {
     // Create instances of our managers
     const authManager = new AuthManager();
     const profileManager = new ProfileManager(authManager);
-    const themeManager = new PDSThemeManager();
+    const themeManager = new PDSThemeManager(authManager); // Pass authManager
     const storageManager = new StorageManager();
     const postsManager = new PostManager();
 

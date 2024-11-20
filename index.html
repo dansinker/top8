@@ -6,10 +6,10 @@
         <title>Top 8 Friends</title>
 
         <!-- External Dependencies -->
-        <!-- Alpine.js -->
-        <script defer src="js/vendor/alpine.min.js"></script>
+        <!-- Alpine.js must be first and defer -->
+        <script src="//unpkg.com/alpinejs" defer></script>
 
-        <!-- Our class-based modules -->
+        <!-- Supporting classes -->
         <script src="js/config.js"></script>
         <script src="js/auth.js"></script>
         <script src="js/profile.js"></script>
@@ -17,7 +17,7 @@
         <script src="js/theme.js"></script>
         <script src="js/posts.js"></script>
 
-        <!-- Alpine.js integration -->
+        <!-- Alpine integration must be last -->
         <script src="js/alpine-integration.js"></script>
 
         <!-- Styles -->

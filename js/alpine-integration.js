@@ -1,4 +1,4 @@
-// Initialize Alpine data with our classes
+// Wait for Alpine to be available
 document.addEventListener("alpine:init", () => {
     // Create instances of our managers
     const authManager = new AuthManager();
@@ -6,6 +6,8 @@ document.addEventListener("alpine:init", () => {
     const themeManager = new ThemeManager();
     const storageManager = new StorageManager();
     const postsManager = new PostManager();
+
+    // Initialize the store
     Alpine.store("person", {});
 
     // Register the theme component
@@ -15,12 +17,8 @@ document.addEventListener("alpine:init", () => {
         currentTheme: null,
 
         init() {
-            // const themeManager = new ThemeManager();
             this.colorThemes = themeManager.colorThemes;
-
-            // Load initial theme
             const storedTheme = localStorage.getItem(CONFIG.STORAGE_KEYS.THEME);
-
             if (storedTheme && this.colorThemes.includes(storedTheme)) {
                 this.changeTheme(storedTheme);
             }
@@ -34,7 +32,6 @@ document.addEventListener("alpine:init", () => {
         },
 
         changeTheme(themeName) {
-            // Immediately update theme classes
             this.themeClass = this.colorThemes.reduce(
                 (acc, theme) => ({
                     ...acc,
@@ -42,8 +39,6 @@ document.addEventListener("alpine:init", () => {
                 }),
                 {},
             );
-
-            // Save theme selection
             localStorage.setItem(CONFIG.STORAGE_KEYS.THEME, themeName);
             this.currentTheme = themeName;
         },
@@ -51,7 +46,7 @@ document.addEventListener("alpine:init", () => {
 
     // Register the main app component
     Alpine.data("appState", () => ({
-        person: {}, // Initialize as empty object
+        person: {},
         username: "",
         password: "",
         loginError: "",
@@ -66,7 +61,7 @@ document.addEventListener("alpine:init", () => {
         logout() {
             authManager.clearTokens();
             StorageManager.clearAuthData();
-            this.person = {}; // Reset to empty object, not null
+            this.person = {};
             this.username = "";
             this.password = "";
             this.loginError = "";
@@ -86,7 +81,7 @@ document.addEventListener("alpine:init", () => {
             this.loginError = "";
 
             try {
-                authData = await authManager.authenticate(
+                const authData = await authManager.authenticate(
                     this.username,
                     this.password,
                 );
@@ -108,16 +103,6 @@ document.addEventListener("alpine:init", () => {
             }
         },
 
-        logout() {
-            authManager.clearTokens();
-            StorageManager.clearAuthData();
-            this.person = {};
-            this.username = "";
-            this.password = "";
-            this.loginError = "";
-            Alpine.store("person", {});
-        },
-
         addFriend() {
             if (this.newFriend && !this.friends.includes(this.newFriend)) {
                 this.friends.push(this.newFriend);
@@ -127,28 +112,23 @@ document.addEventListener("alpine:init", () => {
     }));
 
     // Register the posts component
-    Alpine.data("posts", function () {
-        return {
-            blogs: [],
-            loading: true,
-            error: null,
+    Alpine.data("posts", () => ({
+        blogs: [],
+        loading: true,
+        error: null,
 
-            init() {
-                // Use $watch to react to person changes
-                // let person = Alpine.store("person");
-
-                this.$watch("$store.person", async (person) => {
-                    if (person?.bsky_handle) {
-                        // const postManager = new PostManager();
-                        const state = await postManager.loadPosts(
-                            person.bsky_handle,
-                        );
-                        this.blogs = state.blogs;
-                        this.loading = state.loading;
-                        this.error = state.error;
-                    }
-                });
-            },
-        };
-    });
+        init() {
+            this.$watch("$store.person", async (person) => {
+                if (person?.bsky_handle) {
+                    const postManager = new PostManager();
+                    const state = await postManager.loadPosts(
+                        person.bsky_handle,
+                    );
+                    this.blogs = state.blogs;
+                    this.loading = state.loading;
+                    this.error = state.error;
+                }
+            });
+        },
+    }));
 });

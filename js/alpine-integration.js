@@ -139,7 +139,7 @@ document.addEventListener("alpine:init", () => {
 
                 this.$watch("$store.person", async (person) => {
                     if (person?.bsky_handle) {
-                        const postManager = new PostManager();
+                        // const postManager = new PostManager();
                         const state = await postManager.loadPosts(
                             person.bsky_handle,
                         );
@@ -152,12 +152,3 @@ document.addEventListener("alpine:init", () => {
         };
     });
 });
-
-if (window.Alpine && !window._alpineInitialized) {
-    window._alpineInitialized = true;
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", () => Alpine.start());
-    } else {
-        Alpine.start();
-    }
-}

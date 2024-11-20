@@ -154,7 +154,7 @@ p.post:last-child {
     --font-color: #000000;
     --logobox-color: #740764;
     --logo-color: white;
-    --background-image: url(images/390g.gif);
+    --background-image: url(/images/390g.gif);
 }
 .dark-blue {
     --background-color: #172a3a80;
@@ -164,7 +164,7 @@ p.post:last-child {
     --font-color: #eee;
     --logobox-color: #0d1589;
     --logo-color: white;
-    --background-image: url(images/4f.gif);
+    --background-image: url(/images/4f.gif);
 }
 .almond {
     --background-color: #d9c5b290;
@@ -174,7 +174,7 @@ p.post:last-child {
     --font-color: #000000;
     --logobox-color: #764d05;
     --logo-color: #c57d00;
-    --background-image: url(images/169b.jpg);
+    --background-image: url(/images/169b.jpg);
 }
 .vampire {
     --background-color: #00000080;
@@ -184,7 +184,7 @@ p.post:last-child {
     --font-color: #f5efef;
     --logobox-color: #6e0505;
     --logo-color: white;
-    --background-image: url(images/206c.gif);
+    --background-image: url(/images/206c.gif);
 }
 .toxic {
     --background-color: #e5ff00b6;
@@ -194,7 +194,7 @@ p.post:last-child {
     --font-color: #000000;
     --logobox-color: #073e1a;
     --logo-color: rgb(246, 255, 0);
-    --background-image: url(images/215b.gif);
+    --background-image: url(/images/215b.gif);
 }
 
 .shoes {
@@ -205,7 +205,7 @@ p.post:last-child {
     --font-color: #afef9b;
     --logobox-color: #ff00f7b6;
     --logo-color: #afef9b;
-    --background-image: url(images/176z.gif);
+    --background-image: url(/images/176z.gif);
 }
 
 .angels {
@@ -216,7 +216,7 @@ p.post:last-child {
     --font-color: #3a0d30;
     --logobox-color: #acf3ccc4;
     --logo-color: #426889;
-    --background-image: url(images/76a.jpg);
+    --background-image: url(/images/76a.jpg);
 }
 
 .night {
@@ -227,7 +227,7 @@ p.post:last-child {
     --font-color: #afafaf;
     --logobox-color: #bb4100;
     --logo-color: white;
-    --background-image: url(images/1128n.gif);
+    --background-image: url(/images/1128n.gif);
 }
 
 .pastel {
@@ -238,7 +238,7 @@ p.post:last-child {
     --font-color: #afafaf;
     --logobox-color: #65335c;
     --logo-color: #be87b5;
-    --background-image: url(images/639d.jpg);
+    --background-image: url(/images/639d.jpg);
 }
 
 /* Color Choice */

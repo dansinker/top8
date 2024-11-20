@@ -2,11 +2,31 @@ class PDSRecordManager {
     constructor(authManager) {
         if (!authManager) {
             throw new Error("[PDSRecordManager] AuthManager is required");
-        } else {
-            console.debug("[PDSRecordManager] AuthManager found");
         }
         this.authManager = authManager;
         this.baseUrl = CONFIG.API.BASE_URL;
+    }
+
+    // Helper method to handle auth headers with refresh
+    async getAuthHeadersWithRefresh() {
+        try {
+            // First try getting regular headers
+            const headers = this.authManager.getAuthHeaders();
+            return headers;
+        } catch (error) {
+            console.debug(
+                "[PDSRecordManager] Initial auth headers failed, attempting refresh",
+            );
+
+            // Attempt to refresh the session
+            const refreshResult = await this.authManager.refreshSession();
+            if (!refreshResult) {
+                throw new Error("Failed to refresh authentication");
+            }
+
+            // Try getting headers again after refresh
+            return this.authManager.getAuthHeaders();
+        }
     }
 
     async putRecord(collection, rkey, record) {
@@ -16,33 +36,18 @@ class PDSRecordManager {
             recordSize: JSON.stringify(record).length,
         });
 
-        // Validate required parameters
-        if (!collection || typeof collection !== "string") {
-            throw new Error("Invalid collection parameter");
-        }
-        if (!rkey || typeof rkey !== "string") {
-            throw new Error("Invalid rkey parameter");
-        }
-        if (!record || typeof record !== "object") {
-            throw new Error("Invalid record parameter");
-        }
-
-        // Check authentication
-        if (!this.authManager?.did) {
-            console.error("[PDSRecordManager] Authentication missing");
-            throw new Error("Authentication required");
+        // Validate params first
+        if (!collection || !rkey || !record) {
+            throw new Error("Missing required parameters");
         }
 
         try {
-            // Get auth headers and validate
-            const headers = this.authManager.getAuthHeaders();
-            if (!headers || !headers.authorization) {
-                throw new Error("Invalid auth headers");
-            }
+            // Get auth headers with potential refresh
+            const headers = await this.getAuthHeadersWithRefresh();
 
-            console.debug("[PDSRecordManager] Sending request with headers", {
-                headerKeys: Object.keys(headers),
-            });
+            if (!headers?.Authorization) {
+                throw new Error("No valid authorization header");
+            }
 
             // Prepare request body
             const requestBody = {
@@ -51,61 +56,30 @@ class PDSRecordManager {
                 rkey,
                 record: {
                     ...record,
-                    createdAt: new Date().toISOString(),
                     $type: collection,
-                    lastModified: new Date().toISOString(), // Added tracking
+                    createdAt: new Date().toISOString(),
                 },
             };
-
-            console.debug("[PDSRecordManager] Request payload", requestBody);
-
-            // Make request with timeout
-            const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 30000);
 
             const response = await fetch(
                 `${this.baseUrl}/com.atproto.repo.putRecord`,
                 {
                     method: "POST",
-                    headers,
+                    headers: headers,
                     body: JSON.stringify(requestBody),
-                    signal: controller.signal,
                 },
             );
 
-            clearTimeout(timeout);
-
-            console.debug("[PDSRecordManager] Response received", {
-                status: response.status,
-                ok: response.ok,
-            });
-
             if (!response.ok) {
-                const errorBody = await response.text();
-                console.error("[PDSRecordManager] Error response", {
-                    status: response.status,
-                    body: errorBody,
-                });
+                const errorText = await response.text();
                 throw new Error(
-                    `Failed to save record: ${response.status} - ${errorBody}`,
+                    `HTTP error! status: ${response.status} ${errorText}`,
                 );
             }
 
-            const responseData = await response.json();
-            console.debug("[PDSRecordManager] Record saved successfully", {
-                responseData,
-            });
-
-            return responseData;
+            return await response.json();
         } catch (error) {
-            console.error(
-                `[PDSRecordManager] Save record error for ${collection}:`,
-                error,
-                {
-                    stack: error.stack,
-                    cause: error.cause,
-                },
-            );
+            console.error("[PDSRecordManager] Put record error:", error);
             throw error;
         }
     }
@@ -116,37 +90,17 @@ class PDSRecordManager {
             rkey,
         });
 
-        // Validate required parameters
-        if (!collection || typeof collection !== "string") {
-            console.error("[PDSRecordManager] Invalid collection parameter");
-            throw new Error("Invalid collection parameter");
-        }
-        if (!rkey || typeof rkey !== "string") {
-            console.error("[PDSRecordManager] Invalid rkey parameter");
-            throw new Error("Invalid rkey parameter");
-        }
-
-        // Check authentication
-        if (!this.authManager?.did) {
-            console.error("[PDSRecordManager] Authentication missing");
-            throw new Error("Authentication required");
+        if (!collection || !rkey) {
+            throw new Error("Missing required parameters");
         }
 
         try {
-            // Get auth headers and validate
-            const headers = this.authManager.getAuthHeaders();
-            if (!headers || !headers.authorization) {
-                console.error("[PDSRecordManager] Invalid auth headers");
-                throw new Error("Invalid auth headers");
+            // Get auth headers with potential refresh
+            const headers = await this.getAuthHeadersWithRefresh();
+
+            if (!headers?.Authorization) {
+                throw new Error("No valid authorization header");
             }
-
-            console.debug("[PDSRecordManager] Sending request with headers", {
-                headerKeys: Object.keys(headers),
-            });
-
-            // Make request with timeout
-            const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 30000);
 
             const url = new URL(`${this.baseUrl}/com.atproto.repo.getRecord`);
             url.searchParams.append("repo", this.authManager.did);
@@ -154,251 +108,24 @@ class PDSRecordManager {
             url.searchParams.append("rkey", rkey);
 
             const response = await fetch(url, {
-                headers,
-                signal: controller.signal,
-            });
-
-            clearTimeout(timeout);
-
-            console.debug("[PDSRecordManager] Response received", {
-                status: response.status,
-                ok: response.ok,
+                headers: headers,
             });
 
             if (response.status === 404) {
-                console.debug("[PDSRecordManager] Record not found");
                 return null;
             }
 
             if (!response.ok) {
-                const errorBody = await response.text();
-                console.error("[PDSRecordManager] Error response", {
-                    status: response.status,
-                    body: errorBody,
-                });
+                const errorText = await response.text();
                 throw new Error(
-                    `Failed to get record: ${response.status} - ${errorBody}`,
+                    `HTTP error! status: ${response.status} ${errorText}`,
                 );
             }
 
             const data = await response.json();
-            console.debug("[PDSRecordManager] Record retrieved successfully", {
-                dataKeys: Object.keys(data),
-            });
-
             return data.value;
         } catch (error) {
-            console.error(
-                `[PDSRecordManager] Get record error for ${collection}:`,
-                error,
-                {
-                    stack: error.stack,
-                    cause: error.cause,
-                },
-            );
-
-            if (error.name === "AbortError") {
-                throw new Error("Request timed out");
-            }
-
-            return null;
-        }
-    }
-
-    async listRecords(collection, limit = 100, cursor = null) {
-        console.debug("[PDSRecordManager] Attempting to list records", {
-            collection,
-            limit,
-            cursor,
-        });
-
-        // Validate required parameters
-        if (!collection || typeof collection !== "string") {
-            console.error("[PDSRecordManager] Invalid collection parameter");
-            throw new Error("Invalid collection parameter");
-        }
-        if (!Number.isInteger(limit) || limit < 1 || limit > 1000) {
-            console.error("[PDSRecordManager] Invalid limit parameter");
-            throw new Error(
-                "Invalid limit parameter - must be integer between 1-1000",
-            );
-        }
-
-        // Check authentication
-        if (!this.authManager?.did) {
-            console.error("[PDSRecordManager] Authentication missing");
-            throw new Error("Authentication required");
-        }
-
-        try {
-            // Get auth headers and validate
-            const headers = this.authManager.getAuthHeaders();
-            if (!headers || !headers.authorization) {
-                console.error("[PDSRecordManager] Invalid auth headers");
-                throw new Error("Invalid auth headers");
-            }
-
-            console.debug("[PDSRecordManager] Sending request with headers", {
-                headerKeys: Object.keys(headers),
-            });
-
-            // Build URL with params
-            const url = new URL(`${this.baseUrl}/com.atproto.repo.listRecords`);
-            url.searchParams.append("repo", this.authManager.did);
-            url.searchParams.append("collection", collection);
-            url.searchParams.append("limit", limit.toString());
-            if (cursor) {
-                url.searchParams.append("cursor", cursor);
-            }
-
-            // Make request with timeout
-            const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 30000);
-
-            const response = await fetch(url, {
-                headers,
-                signal: controller.signal,
-            });
-
-            clearTimeout(timeout);
-
-            console.debug("[PDSRecordManager] Response received", {
-                status: response.status,
-                ok: response.ok,
-            });
-
-            if (!response.ok) {
-                const errorBody = await response.text();
-                console.error("[PDSRecordManager] Error response", {
-                    status: response.status,
-                    body: errorBody,
-                });
-                throw new Error(
-                    `Failed to list records: ${response.status} - ${errorBody}`,
-                );
-            }
-
-            const data = await response.json();
-            console.debug("[PDSRecordManager] Records retrieved successfully", {
-                recordCount: data.records?.length,
-                cursor: data.cursor,
-            });
-
-            return data.records || [];
-        } catch (error) {
-            console.error(
-                `[PDSRecordManager] List records error for ${collection}:`,
-                error,
-                {
-                    stack: error.stack,
-                    cause: error.cause,
-                },
-            );
-
-            if (error.name === "AbortError") {
-                throw new Error("Request timed out");
-            }
-
-            return [];
-        }
-    }
-
-    async deleteRecord(collection, rkey) {
-        console.debug("[PDSRecordManager] Attempting to delete record", {
-            collection,
-            rkey,
-        });
-
-        // Validate required parameters
-        if (!collection || typeof collection !== "string") {
-            console.error("[PDSRecordManager] Invalid collection parameter");
-            throw new Error("Invalid collection parameter");
-        }
-        if (!rkey || typeof rkey !== "string") {
-            console.error("[PDSRecordManager] Invalid rkey parameter");
-            throw new Error("Invalid rkey parameter");
-        }
-
-        // Check authentication
-        if (!this.authManager?.did) {
-            console.error("[PDSRecordManager] Authentication missing");
-            throw new Error("Authentication required");
-        }
-
-        try {
-            // Get auth headers and validate
-            const headers = this.authManager.getAuthHeaders();
-            if (!headers || !headers.authorization) {
-                console.error("[PDSRecordManager] Invalid auth headers");
-                throw new Error("Invalid auth headers");
-            }
-
-            console.debug(
-                "[PDSRecordManager] Sending delete request with headers",
-                {
-                    headerKeys: Object.keys(headers),
-                },
-            );
-
-            // Make request with timeout
-            const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 30000);
-
-            const requestBody = {
-                repo: this.authManager.did,
-                collection,
-                rkey,
-            };
-
-            console.debug(
-                "[PDSRecordManager] Delete request payload",
-                requestBody,
-            );
-
-            const response = await fetch(
-                `${this.baseUrl}/com.atproto.repo.deleteRecord`,
-                {
-                    method: "POST",
-                    headers,
-                    body: JSON.stringify(requestBody),
-                    signal: controller.signal,
-                },
-            );
-
-            clearTimeout(timeout);
-
-            console.debug("[PDSRecordManager] Delete response received", {
-                status: response.status,
-                ok: response.ok,
-            });
-
-            if (!response.ok) {
-                const errorBody = await response.text();
-                console.error("[PDSRecordManager] Delete error response", {
-                    status: response.status,
-                    body: errorBody,
-                });
-                throw new Error(
-                    `Failed to delete record: ${response.status} - ${errorBody}`,
-                );
-            }
-
-            console.debug("[PDSRecordManager] Record deleted successfully");
-            return true;
-        } catch (error) {
-            console.error(
-                `[PDSRecordManager] Delete record error for ${collection}:`,
-                error,
-                {
-                    stack: error.stack,
-                    cause: error.cause,
-                },
-            );
-
-            if (error.name === "AbortError") {
-                throw new Error("Delete request timed out");
-            }
-
+            console.error("[PDSRecordManager] Get record error:", error);
             throw error;
         }
     }

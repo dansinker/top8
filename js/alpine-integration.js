@@ -19,62 +19,37 @@ document.addEventListener("alpine:init", () => {
     });
 
     // Register the theme component
+    // Register the theme component
     Alpine.data("theme", () => ({
         colorThemes: [],
         themeClass: {},
         currentTheme: null,
-        defaultTheme: "light",
 
         init() {
             this.colorThemes = themeManager.colorThemes;
-            const storedTheme = localStorage.getItem(CONFIG.STORAGE_KEYS.THEME);
+            const storedPerson = Alpine.store("person");
 
-            if (storedTheme && this.validateTheme(storedTheme)) {
-                this.changeTheme(storedTheme);
-            } else {
-                this.changeTheme(this.defaultTheme);
+            if (storedPerson?.bsky_handle) {
+                themeManager.initialize().catch(console.error);
             }
         },
 
         validateTheme(themeName) {
-            return this.colorThemes.includes(themeName);
+            return themeManager.validateTheme(themeName);
         },
 
         choiceClass(themeName) {
-            if (!this.validateTheme(themeName)) {
-                return { "color-choice": true };
-            }
-            return {
-                "color-choice": true,
-                [themeName]: true,
-            };
+            return themeManager.choiceClass(themeName);
         },
-        
+
         async changeTheme(themeName) {
+            try {
                 const result = await themeManager.setTheme(themeName);
                 this.themeClass = result;
+            } catch (error) {
+                console.error("Failed to change theme:", error);
             }
-
-        // changeTheme(themeName) {
-        //     if (!this.validateTheme(themeName)) return;
-
-        //     // Update Alpine state
-        //     this.themeClass = this.colorThemes.reduce(
-        //         (acc, theme) => ({
-        //             ...acc,
-        //             [theme]: theme === themeName,
-        //         }),
-        //         {},
-        //     );
-
-        //     // Update DOM directly
-        //     document.body.className = "";
-        //     document.body.classList.add(themeName);
-
-        //     // Store theme
-        //     localStorage.setItem(CONFIG.STORAGE_KEYS.THEME, themeName);
-        //     this.currentTheme = themeName;
-        // },
+        },
     }));
 
     // Register the main app component

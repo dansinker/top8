@@ -1,134 +1,154 @@
-class PDSThemeManager extends ThemeManager {
+class PDSThemeManager {
     constructor(authManager) {
-            super();
-            if (!authManager) {
-                throw new Error('AuthManager is required for PDSThemeManager');
-            }
-            this.pds = new PDSRecordManager(authManager);
+        if (!authManager) {
+            throw new Error("[PDSThemeManager] AuthManager is required");
         }
+        this.pds = new PDSRecordManager(authManager);
+        this.colorThemes = [
+            "pink",
+            "dark-blue",
+            "almond",
+            "vampire",
+            "toxic",
+            "shoes",
+            "angels",
+            "night",
+            "pastel",
+        ];
+        this.currentTheme = null;
+    }
 
     async initialize() {
-        console.debug("[PDSThemeManager] Initializing theme manager...");
+        console.debug("[PDSThemeManager] Starting initialization...");
 
         try {
-            const superInit = await super.initialize();
-            console.debug(
-                "[PDSThemeManager] Super initialization complete:",
-                superInit,
-            );
-        } catch (error) {
-            console.error(
-                "[PDSThemeManager] Failed to initialize parent class:",
-                error,
-            );
-            throw error; // Bubble up critical initialization errors
-        }
-
-        try {
-            console.debug("[PDSThemeManager] Fetching theme record...");
-
+            // Verify configuration
             if (!CONFIG?.THEME?.RECORD_TYPE || !CONFIG?.THEME?.RECORD_KEY) {
-                throw new Error("Invalid theme configuration");
+                throw new Error("Theme configuration missing required values");
             }
 
+            // Attempt to fetch theme from PDS
+            console.debug("[PDSThemeManager] Fetching theme from PDS...");
             const record = await this.pds.getRecord(
                 CONFIG.THEME.RECORD_TYPE,
                 CONFIG.THEME.RECORD_KEY,
             );
 
-            console.debug("[PDSThemeManager] Retrieved theme record:", record);
+            console.debug(
+                "[PDSThemeManager] Retrieved PDS theme record:",
+                record,
+            );
 
             if (!record) {
                 console.debug(
-                    "[PDSThemeManager] No theme record found, using default",
+                    "[PDSThemeManager] No theme record found in PDS, creating default",
                 );
+                // Create default theme record
+                await this.setTheme(this.colorThemes[0]);
                 return;
             }
 
-            if (!record.theme) {
+            // Validate theme value
+            if (!record.theme || !this.colorThemes.includes(record.theme)) {
                 console.warn(
-                    "[PDSThemeManager] Theme record exists but has no theme property",
-                );
-                return;
-            }
-
-            if (!this.colorThemes?.includes(record.theme)) {
-                console.warn(
-                    "[PDSThemeManager] Retrieved invalid theme:",
+                    "[PDSThemeManager] Invalid theme in PDS record:",
                     record.theme,
                 );
+                await this.setTheme(this.colorThemes[0]);
                 return;
             }
 
-            console.debug("[PDSThemeManager] Setting theme to:", record.theme);
+            // Set the theme
+            console.debug(
+                "[PDSThemeManager] Setting theme from PDS:",
+                record.theme,
+            );
             await this.setTheme(record.theme);
-            console.debug("[PDSThemeManager] Theme set successfully");
+
+            console.debug("[PDSThemeManager] Theme initialization complete", {
+                currentTheme: this.currentTheme,
+                recordFound: !!record,
+                themeValue: record?.theme,
+            });
         } catch (error) {
-            console.error("[PDSThemeManager] Failed to load PDS theme:", error);
-            // Don't throw - theme loading failures are non-critical
+            console.error("[PDSThemeManager] Initialization error:", {
+                error: error.message,
+                stack: error.stack,
+            });
+            // Set default theme on error
+            this.setThemeLocally(this.colorThemes[0]);
         }
     }
 
     async setTheme(themeName) {
-        console.debug(
-            "[PDSThemeManager] Attempting to set theme to:",
-            themeName,
-        );
-
-        if (!themeName) {
-            console.error("[PDSThemeManager] Invalid theme name provided");
-            throw new Error("Theme name must be provided");
-        }
+        console.debug("[PDSThemeManager] Setting theme:", themeName);
 
         try {
-            console.debug("[PDSThemeManager] Calling parent setTheme method");
-            const result = await super.setTheme(themeName);
-            console.debug(
-                "[PDSThemeManager] Parent setTheme completed with result:",
-                result,
-            );
-
-            if (!this.currentTheme) {
-                console.warn(
-                    "[PDSThemeManager] Theme was set but currentTheme is not defined",
-                );
-                return result;
+            if (!themeName || typeof themeName !== "string") {
+                throw new Error("Invalid theme name");
             }
 
-            if (!CONFIG?.THEME?.RECORD_TYPE || !CONFIG?.THEME?.RECORD_KEY) {
-                console.error("[PDSThemeManager] Invalid theme configuration");
-                throw new Error("Invalid theme configuration");
+            const normalizedTheme = themeName.trim().toLowerCase();
+            if (!this.colorThemes.includes(normalizedTheme)) {
+                throw new Error(`Invalid theme: ${normalizedTheme}`);
             }
 
-            console.debug("[PDSThemeManager] Saving theme preference to PDS");
+            // Set theme locally first
+            this.setThemeLocally(normalizedTheme);
+
+            // Prepare record for PDS
             const record = {
-                theme: this.currentTheme,
+                theme: normalizedTheme,
                 updatedAt: new Date().toISOString(),
+                $type: CONFIG.THEME.RECORD_TYPE,
             };
 
+            // Save to PDS
+            console.debug("[PDSThemeManager] Saving theme to PDS:", record);
             await this.pds.putRecord(
                 CONFIG.THEME.RECORD_TYPE,
                 CONFIG.THEME.RECORD_KEY,
                 record,
             );
-            console.debug(
-                "[PDSThemeManager] Successfully saved theme preference:",
-                record,
-            );
 
-            return result;
+            console.debug("[PDSThemeManager] Theme saved successfully");
+            return this.getThemeClasses();
         } catch (error) {
-            console.error(
-                "[PDSThemeManager] Failed to set or save theme:",
-                error,
-            );
-            if (error.message === "Invalid theme configuration") {
-                throw error; // Re-throw configuration errors
-            }
-            console.warn(
-                "[PDSThemeManager] Continuing despite PDS save failure",
-            );
-            return false;
+            console.error("[PDSThemeManager] Error setting theme:", {
+                error: error.message,
+                themeName,
+                currentState: this.currentTheme,
+            });
+            throw error;
         }
+    }
+
+    setThemeLocally(themeName) {
+        this.currentTheme = themeName;
+        document.body.className = themeName;
+    }
+
+    getThemeClasses() {
+        return this.colorThemes.reduce(
+            (acc, theme) => ({
+                ...acc,
+                [theme]: theme === this.currentTheme,
+            }),
+            {},
+        );
+    }
+
+    validateTheme(themeName) {
+        return this.colorThemes.includes(themeName?.trim()?.toLowerCase());
+    }
+
+    choiceClass(themeName) {
+        if (!this.validateTheme(themeName)) {
+            return { "color-choice": true };
+        }
+        return {
+            "color-choice": true,
+            [themeName]: true,
+        };
     }
 }

@@ -163,7 +163,7 @@ document.addEventListener("alpine:init", () => {
                 console.debug("[Logout] Resetting local state");
                 this.person = {};
                 this.username = "";
-                this.password = ""; 
+                this.password = "";
                 this.loginError = "";
 
                 // Reset Alpine stores

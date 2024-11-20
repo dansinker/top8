@@ -8,23 +8,42 @@ document.addEventListener("alpine:init", () => {
 
     // Register the theme component
     Alpine.data("theme", () => ({
-        colorThemes: themeManager.colorThemes,
+        colorThemes: [],
         themeClass: {},
         currentTheme: null,
 
         init() {
-            const storedTheme = localStorage.getItem("top8_theme");
+            // const themeManager = new ThemeManager();
+            this.colorThemes = themeManager.colorThemes;
+
+            // Load initial theme
+            const storedTheme = localStorage.getItem(CONFIG.STORAGE_KEYS.THEME);
+
             if (storedTheme && this.colorThemes.includes(storedTheme)) {
                 this.changeTheme(storedTheme);
             }
         },
 
         choiceClass(themeName) {
-            return themeManager.getColorChoiceClass(themeName);
+            return {
+                "color-choice": true,
+                [themeName]: true,
+            };
         },
 
         changeTheme(themeName) {
-            this.themeClass = themeManager.setTheme(themeName);
+            // Immediately update theme classes
+            this.themeClass = this.colorThemes.reduce(
+                (acc, theme) => ({
+                    ...acc,
+                    [theme]: theme === themeName,
+                }),
+                {},
+            );
+
+            // Save theme selection
+            localStorage.setItem(CONFIG.STORAGE_KEYS.THEME, themeName);
+            this.currentTheme = themeName;
         },
     }));
 

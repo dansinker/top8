@@ -285,3 +285,114 @@ body {
 }
 
 /* login */
+
+/* top 8 */
+
+/* Add these styles to your existing CSS file */
+
+.dialog-overlay {
+    backdrop-filter: blur(2px);
+}
+
+.dialog-content {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.search-box {
+    margin: 1em 0;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--header-color);
+    border-radius: 4px;
+}
+
+.search-results {
+    margin-top: 1em;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.friend-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid transparent;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.friend-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.friend-item.selected {
+    border-color: var(--header-color);
+    background-color: rgba(var(--header-color), 0.1);
+}
+
+.friend-item .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 12px;
+}
+
+.friend-item .friend-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.friend-item .handle {
+    font-size: 0.9em;
+    color: var(--font-color);
+    opacity: 0.7;
+}
+
+.dialog-buttons {
+    margin-top: 1em;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.error-message {
+    color: #ff0000;
+    margin: 8px 0;
+    padding: 8px;
+    background-color: rgba(255, 0, 0, 0.1);
+    border-radius: 4px;
+}
+
+.friends-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 16px;
+    margin-top: 1em;
+}
+
+.friends-grid .friend {
+    text-align: center;
+}
+
+.friends-grid .friend img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin-bottom: 8px;
+}
+
+.loading-indicator {
+    margin-top: 8px;
+    font-size: 0.9em;
+    color: var(--font-color);
+}
+
+.progress-note {
+    font-size: 0.8em;
+    opacity: 0.8;
+    margin-top: 4px;
+}

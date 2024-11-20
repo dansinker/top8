@@ -127,7 +127,7 @@
                     
                         <!-- Friends Grid -->
                         <div class="friends-grid">
-                            <template x-for="friend in friends" :key="friend.did">
+                            <template x-for="(friend, index) in friends" :key="friend.uniqueId || `${friend.did}-${index}`">
                                 <div class="friend">
                                     <img :src="friend.avatar || '/api/placeholder/120/120'" 
                                          :alt="friend.displayName"/>
@@ -180,7 +180,7 @@
                     
                                 <!-- Search Results -->
                                 <div class="search-results" x-show="!loading">
-                                    <template x-for="friend in searchResults" :key="friend.did">
+                                    <template x-for="(friend, index) in searchResults" :key="friend.uniqueId || `${friend.did}-${index}`">
                                         <div class="friend-item"
                                              :class="{ 'selected': isFriendSelected(friend) }"
                                              @click="toggleFriend(friend)">

@@ -4,13 +4,15 @@ class Top8Manager {
             throw new Error("[Top8Manager] AuthManager is required");
         }
         this.pds = new PDSRecordManager(authManager);
-        this.recordType = "app.bsky.graph.listitem";
-        this.recordKey = "top8list";
+
+        // Use config values
+        this.recordType = CONFIG.TOP8.RECORD_TYPE;
+        this.recordKey = CONFIG.TOP8.RECORD_KEY;
 
         // Add cache for follows
         this.followsCache = null;
         this.lastCacheUpdate = null;
-        this.cacheExpiration = 5 * 60 * 1000; // 5 minutes
+        this.cacheExpiration = CONFIG.TOP8.CACHE_DURATION;
     }
 
     async initialize() {
@@ -20,8 +22,13 @@ class Top8Manager {
                 this.recordType,
                 this.recordKey,
             );
-            // Extract list from record using ref key
-            return record?.friends || [];
+            // Add unique identifiers to each friend
+            const friends = record?.items || [];
+            return friends.map((friend, index) => ({
+                ...friend,
+                uniqueId: `${friend.did}-${index}`,
+                position: index,
+            }));
         } catch (error) {
             console.error("[Top8Manager] Initialization error:", error);
             return [];
@@ -90,20 +97,26 @@ class Top8Manager {
         console.debug("[Top8Manager] Searching follows:", query);
 
         try {
-            // Load or refresh cache if needed
             if (!this.isCacheValid()) {
                 await this.loadAllFollows();
             }
 
             const searchQuery = query.toLowerCase();
 
-            // Search through cached follows
-            const results = this.followsCache.filter(
-                (follow) =>
-                    follow.handle.toLowerCase().includes(searchQuery) ||
-                    (follow.displayName &&
-                        follow.displayName.toLowerCase().includes(searchQuery)),
-            );
+            // Add unique IDs to search results
+            const results = this.followsCache
+                .filter(
+                    (follow) =>
+                        follow.handle.toLowerCase().includes(searchQuery) ||
+                        (follow.displayName &&
+                            follow.displayName
+                                .toLowerCase()
+                                .includes(searchQuery)),
+                )
+                .map((follow, index) => ({
+                    ...follow,
+                    uniqueId: `${follow.did}-${Date.now()}-${index}`,
+                }));
 
             console.debug(
                 `[Top8Manager] Found ${results.length} matches for "${query}"`,
@@ -118,35 +131,35 @@ class Top8Manager {
     async saveFriends(friends) {
         console.debug("[Top8Manager] Saving friends:", friends);
 
-        if (!Array.isArray(friends) || friends.length > 8) {
-            throw new Error("Invalid friends list - maximum 8 friends allowed");
+        if (
+            !Array.isArray(friends) ||
+            friends.length > CONFIG.TOP8.MAX_FRIENDS
+        ) {
+            throw new Error(
+                `Invalid friends list - maximum ${CONFIG.TOP8.MAX_FRIENDS} friends allowed`,
+            );
         }
 
         try {
-            // Create a record for each friend in the top 8
-            for (let i = 0; i < friends.length; i++) {
-                const friend = friends[i];
-                const record = {
-                    subject: friend.did, // Use the friend's DID as the subject
-                    list: "app.bsky.graph.top8", // Indicate this is a top8 list
-                    position: i, // Store the position in the top 8
-                    createdAt: new Date().toISOString(),
-                    $type: this.recordType,
-                };
-
-                // Use a unique key for each friend in the list
-                const friendKey = `top8list-${i}`;
-                await this.pds.putRecord(this.recordType, friendKey, record);
-            }
-
-            // Store the complete list for our reference
-            const listRecord = {
-                $type: "app.bsky.graph.list",
-                friends: friends,
+            const record = {
+                purpose: CONFIG.TOP8.LIST_PURPOSE,
+                name: "My Top 8 Friends",
+                description: "My closest friends on Bluesky",
+                items: friends.map((friend, index) => ({
+                    subject: friend.did,
+                    handle: friend.handle,
+                    displayName: friend.displayName,
+                    avatar: friend.avatar,
+                    position: index,
+                    uniqueId:
+                        friend.uniqueId ||
+                        `${friend.did}-${Date.now()}-${index}`,
+                })),
                 createdAt: new Date().toISOString(),
+                $type: this.recordType,
             };
-            await this.pds.putRecord("app.bsky.graph.list", "top8", listRecord);
 
+            await this.pds.putRecord(this.recordType, this.recordKey, record);
             return true;
         } catch (error) {
             console.error("[Top8Manager] Error saving friends:", error);

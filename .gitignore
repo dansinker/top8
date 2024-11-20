@@ -1,0 +1,10 @@
+# Ignore everything in vendor except Alpine
+js/vendor/*
+!js/vendor/alpine.min.js
+!js/vendor/alpine.min.js.map
+
+# Other common ignores
+node_modules/
+.DS_Store
+*.log
+output.txt

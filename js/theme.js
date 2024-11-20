@@ -1,4 +1,3 @@
-// Theme Manager Class
 class ThemeManager {
     constructor() {
         this.colorThemes = [
@@ -50,13 +49,11 @@ class ThemeManager {
     setTheme(themeName) {
         console.log("[ThemeManager] Attempting to set theme:", themeName);
 
-        // Input validation
         if (!themeName || typeof themeName !== "string") {
             console.error("[ThemeManager] Invalid theme parameter type");
             return this.getThemeClasses();
         }
 
-        // Normalize theme name
         const normalizedTheme = themeName.trim().toLowerCase();
 
         if (!this.colorThemes.includes(normalizedTheme)) {
@@ -75,6 +72,9 @@ class ThemeManager {
             console.log("[ThemeManager] Saving theme to localStorage");
             localStorage.setItem(CONFIG.STORAGE_KEYS.THEME, normalizedTheme);
 
+            // Force body class update
+            document.body.className = normalizedTheme;
+
             const updatedClasses = this.getThemeClasses();
             console.log(
                 "[ThemeManager] Theme updated successfully, returning classes:",
@@ -83,7 +83,6 @@ class ThemeManager {
             return updatedClasses;
         } catch (error) {
             console.error("[ThemeManager] Error setting theme:", error);
-            // Attempt to rollback current theme if localStorage fails
             this.currentTheme = null;
             return this.getThemeClasses();
         }
@@ -92,16 +91,13 @@ class ThemeManager {
     getThemeClasses() {
         console.log("[ThemeManager] Getting theme classes...");
 
-        // Input validation
         if (!Array.isArray(this.colorThemes)) {
             console.error("[ThemeManager] colorThemes is not an array");
             return {};
         }
 
         try {
-            // Create theme class map
             const themeClasses = this.colorThemes.reduce((acc, theme) => {
-                // Validate theme
                 if (typeof theme !== "string") {
                     console.warn(
                         "[ThemeManager] Invalid theme type:",
@@ -141,7 +137,6 @@ class ThemeManager {
             themeName,
         );
 
-        // Input validation
         if (!themeName || typeof themeName !== "string") {
             console.error(
                 "[ThemeManager] Invalid theme name parameter:",
@@ -150,10 +145,8 @@ class ThemeManager {
             return { "color-choice": true };
         }
 
-        // Normalize theme name
         const normalizedTheme = themeName.trim().toLowerCase();
 
-        // Validate theme exists
         if (!this.colorThemes.includes(normalizedTheme)) {
             console.warn("[ThemeManager] Invalid theme name:", normalizedTheme);
             console.log("[ThemeManager] Available themes:", this.colorThemes);

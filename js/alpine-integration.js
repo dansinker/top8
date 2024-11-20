@@ -26,63 +26,22 @@ document.addEventListener("alpine:init", () => {
         defaultTheme: "light",
 
         init() {
-            console.debug("[Theme Component] Initializing theme component");
-            try {
-                this.colorThemes = themeManager.colorThemes;
-                console.debug(
-                    "[Theme Component] Available themes:",
-                    this.colorThemes,
-                );
+            this.colorThemes = themeManager.colorThemes;
+            const storedTheme = localStorage.getItem(CONFIG.STORAGE_KEYS.THEME);
 
-                const storedTheme = localStorage.getItem(
-                    CONFIG.STORAGE_KEYS.THEME,
-                );
-                console.debug(
-                    "[Theme Component] Retrieved stored theme:",
-                    storedTheme,
-                );
-
-                if (storedTheme && this.validateTheme(storedTheme)) {
-                    console.debug(
-                        "[Theme Component] Applying stored theme:",
-                        storedTheme,
-                    );
-                    this.changeTheme(storedTheme);
-                } else {
-                    console.debug(
-                        "[Theme Component] No valid stored theme, using default:",
-                        this.defaultTheme,
-                    );
-                    this.changeTheme(this.defaultTheme);
-                }
-            } catch (error) {
-                console.error(
-                    "[Theme Component] Error during initialization:",
-                    error,
-                );
-                this.handleThemeError();
+            if (storedTheme && this.validateTheme(storedTheme)) {
+                this.changeTheme(storedTheme);
+            } else {
+                this.changeTheme(this.defaultTheme);
             }
         },
 
         validateTheme(themeName) {
-            const isValid = this.colorThemes.includes(themeName);
-            console.debug(
-                `[Theme Component] Validating theme "${themeName}":`,
-                isValid,
-            );
-            return isValid;
+            return this.colorThemes.includes(themeName);
         },
 
         choiceClass(themeName) {
-            console.debug(
-                "[Theme Component] Generating class for theme:",
-                themeName,
-            );
             if (!this.validateTheme(themeName)) {
-                console.warn(
-                    "[Theme Component] Invalid theme name in choiceClass:",
-                    themeName,
-                );
                 return { "color-choice": true };
             }
             return {
@@ -92,45 +51,24 @@ document.addEventListener("alpine:init", () => {
         },
 
         changeTheme(themeName) {
-            console.debug(
-                "[Theme Component] Attempting to change theme to:",
-                themeName,
+            if (!this.validateTheme(themeName)) return;
+
+            // Update Alpine state
+            this.themeClass = this.colorThemes.reduce(
+                (acc, theme) => ({
+                    ...acc,
+                    [theme]: theme === themeName,
+                }),
+                {},
             );
 
-            if (!this.validateTheme(themeName)) {
-                console.error(
-                    "[Theme Component] Invalid theme name:",
-                    themeName,
-                );
-                return;
-            }
+            // Update DOM directly
+            document.body.className = "";
+            document.body.classList.add(themeName);
 
-            try {
-                this.themeClass = this.colorThemes.reduce(
-                    (acc, theme) => ({
-                        ...acc,
-                        [theme]: theme === themeName,
-                    }),
-                    {},
-                );
-
-                localStorage.setItem(CONFIG.STORAGE_KEYS.THEME, themeName);
-                this.currentTheme = themeName;
-
-                console.debug("[Theme Component] Theme changed successfully:", {
-                    theme: themeName,
-                    classes: this.themeClass,
-                });
-            } catch (error) {
-                console.error("[Theme Component] Error changing theme:", error);
-                this.handleThemeError();
-            }
-        },
-
-        handleThemeError() {
-            console.warn("[Theme Component] Falling back to default theme");
-            this.currentTheme = this.defaultTheme;
-            this.themeClass = { [this.defaultTheme]: true };
+            // Store theme
+            localStorage.setItem(CONFIG.STORAGE_KEYS.THEME, themeName);
+            this.currentTheme = themeName;
         },
     }));
 

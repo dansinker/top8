@@ -16,42 +16,166 @@ class ThemeManager {
     }
 
     initialize() {
-        const storedTheme = localStorage.getItem(CONFIG.STORAGE_KEYS.THEME);
-        if (storedTheme && this.colorThemes.includes(storedTheme)) {
-            this.setTheme(storedTheme);
+        console.log("[ThemeManager] Initializing theme manager...");
+
+        let storedTheme;
+        try {
+            storedTheme = localStorage.getItem(CONFIG.STORAGE_KEYS.THEME);
+            console.log("[ThemeManager] Retrieved stored theme:", storedTheme);
+        } catch (err) {
+            console.error("[ThemeManager] Error accessing localStorage:", err);
+            return;
+        }
+
+        if (!storedTheme) {
+            console.log("[ThemeManager] No stored theme found");
+            return;
+        }
+
+        if (!this.colorThemes.includes(storedTheme)) {
+            console.warn("[ThemeManager] Invalid stored theme:", storedTheme);
+            console.log("[ThemeManager] Available themes:", this.colorThemes);
+            return;
+        }
+
+        console.log("[ThemeManager] Setting valid stored theme:", storedTheme);
+        try {
+            const result = this.setTheme(storedTheme);
+            console.log("[ThemeManager] Theme set successfully:", result);
+        } catch (err) {
+            console.error("[ThemeManager] Error setting theme:", err);
         }
     }
 
     setTheme(themeName) {
-        if (!this.colorThemes.includes(themeName)) {
-            console.warn("Invalid theme name:", themeName);
+        console.log("[ThemeManager] Attempting to set theme:", themeName);
+
+        // Input validation
+        if (!themeName || typeof themeName !== "string") {
+            console.error("[ThemeManager] Invalid theme parameter type");
             return this.getThemeClasses();
         }
 
-        // Immediately update the current theme
-        this.currentTheme = themeName;
+        // Normalize theme name
+        const normalizedTheme = themeName.trim().toLowerCase();
 
-        // Save to localStorage synchronously
-        localStorage.setItem(CONFIG.STORAGE_KEYS.THEME, themeName);
+        if (!this.colorThemes.includes(normalizedTheme)) {
+            console.warn("[ThemeManager] Invalid theme name:", normalizedTheme);
+            console.log("[ThemeManager] Available themes:", this.colorThemes);
+            return this.getThemeClasses();
+        }
 
-        // Return updated classes immediately
-        return this.getThemeClasses();
+        try {
+            console.log(
+                "[ThemeManager] Updating current theme to:",
+                normalizedTheme,
+            );
+            this.currentTheme = normalizedTheme;
+
+            console.log("[ThemeManager] Saving theme to localStorage");
+            localStorage.setItem(CONFIG.STORAGE_KEYS.THEME, normalizedTheme);
+
+            const updatedClasses = this.getThemeClasses();
+            console.log(
+                "[ThemeManager] Theme updated successfully, returning classes:",
+                updatedClasses,
+            );
+            return updatedClasses;
+        } catch (error) {
+            console.error("[ThemeManager] Error setting theme:", error);
+            // Attempt to rollback current theme if localStorage fails
+            this.currentTheme = null;
+            return this.getThemeClasses();
+        }
     }
 
     getThemeClasses() {
-        return this.colorThemes.reduce(
-            (acc, theme) => ({
-                ...acc,
-                [theme]: theme === this.currentTheme,
-            }),
-            {},
-        );
+        console.log("[ThemeManager] Getting theme classes...");
+
+        // Input validation
+        if (!Array.isArray(this.colorThemes)) {
+            console.error("[ThemeManager] colorThemes is not an array");
+            return {};
+        }
+
+        try {
+            // Create theme class map
+            const themeClasses = this.colorThemes.reduce((acc, theme) => {
+                // Validate theme
+                if (typeof theme !== "string") {
+                    console.warn(
+                        "[ThemeManager] Invalid theme type:",
+                        typeof theme,
+                    );
+                    return acc;
+                }
+
+                const isActive = theme === this.currentTheme;
+                console.log(
+                    `[ThemeManager] Processing theme '${theme}', active: ${isActive}`,
+                );
+
+                return {
+                    ...acc,
+                    [theme]: isActive,
+                };
+            }, {});
+
+            console.log(
+                "[ThemeManager] Generated theme classes:",
+                themeClasses,
+            );
+            return themeClasses;
+        } catch (error) {
+            console.error(
+                "[ThemeManager] Error generating theme classes:",
+                error,
+            );
+            return {};
+        }
     }
 
     getColorChoiceClass(themeName) {
-        return {
-            "color-choice": true,
-            [themeName]: true,
-        };
+        console.log(
+            "[ThemeManager] Getting color choice class for theme:",
+            themeName,
+        );
+
+        // Input validation
+        if (!themeName || typeof themeName !== "string") {
+            console.error(
+                "[ThemeManager] Invalid theme name parameter:",
+                themeName,
+            );
+            return { "color-choice": true };
+        }
+
+        // Normalize theme name
+        const normalizedTheme = themeName.trim().toLowerCase();
+
+        // Validate theme exists
+        if (!this.colorThemes.includes(normalizedTheme)) {
+            console.warn("[ThemeManager] Invalid theme name:", normalizedTheme);
+            console.log("[ThemeManager] Available themes:", this.colorThemes);
+            return { "color-choice": true };
+        }
+
+        try {
+            const classes = {
+                "color-choice": true,
+                [normalizedTheme]: true,
+            };
+            console.log(
+                "[ThemeManager] Generated color choice classes:",
+                classes,
+            );
+            return classes;
+        } catch (error) {
+            console.error(
+                "[ThemeManager] Error generating color choice classes:",
+                error,
+            );
+            return { "color-choice": true };
+        }
     }
 }

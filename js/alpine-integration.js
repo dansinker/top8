@@ -49,16 +49,25 @@ document.addEventListener("alpine:init", () => {
 
     // Register the main app component
     Alpine.data("appState", () => ({
-        person: profileManager.profile,
+        person: {}, // Initialize as empty object
         username: "",
         password: "",
         loginError: "",
         loading: false,
         friends: [],
         newFriend: "",
-
+    
         init() {
             this.checkStoredSession();
+        },
+    
+        logout() {
+            authManager.clearTokens();
+            StorageManager.clearAuthData();
+            this.person = {}; // Reset to empty object, not null
+            this.username = "";
+            this.password = "";
+            this.loginError = "";
         },
 
         async checkStoredSession() {

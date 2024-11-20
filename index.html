@@ -37,7 +37,7 @@
                 <!-- Left Column -->
                 <div id="leftcolumn">
                     <!-- Login Form -->
-                    <div id="addbox" class="box" x-show="person.name == null">
+                    <div id="addbox" class="box" x-show="!person.name">
                         <h1>Log in with Bluesky</h1>
                         <form @submit.prevent="loginUser">
                             <div class="form-group">

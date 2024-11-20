@@ -19,7 +19,7 @@ class ThemeManager {
 
         let storedTheme;
         try {
-            storedTheme = localStorage.getItem(CONFIG.STORAGE_KEYS.THEME);
+            // storedTheme = localStorage.getItem(CONFIG.STORAGE_KEYS.THEME);
             console.log("[ThemeManager] Retrieved stored theme:", storedTheme);
         } catch (err) {
             console.error("[ThemeManager] Error accessing localStorage:", err);
@@ -70,7 +70,7 @@ class ThemeManager {
             this.currentTheme = normalizedTheme;
 
             console.log("[ThemeManager] Saving theme to localStorage");
-            localStorage.setItem(CONFIG.STORAGE_KEYS.THEME, normalizedTheme);
+            // localStorage.setItem(CONFIG.STORAGE_KEYS.THEME, normalizedTheme);
 
             // Force body class update
             document.body.className = normalizedTheme;

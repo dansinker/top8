@@ -114,111 +114,156 @@
                 <div id="rightcolumn">
                     <!-- Friends List -->
                     <!-- Replace the entire top8box div with this corrected version -->
-                    <div id="top8box" 
-                         x-data="top8"
-                         x-init="init()">
+                    <div id="top8box" x-data="top8" x-init="init()">
                         <h1>My Top <span x-text="friends.length"></span></h1>
-                        
+
                         <!-- Add Friend Button -->
-                        <button @click="showDialog = true; searchQuery = ''; searchResults = []"
-                                class="edit-button"></button>
+                        <button
+                            @click="showDialog = true; searchQuery = ''; searchResults = []"
+                            class="edit-button"
+                        >
                             Edit Top 8
                         </button>
-                    
+
                         <!-- Friends Grid -->
                         <div class="friends-grid">
-                            <template x-for="(friend, index) in friends" :key="friend.uniqueId || `${friend.did}-${index}`">
+                            <template
+                                x-for="(friend, index) in friends"
+                                :key="friend.uniqueId || `${friend.did}-${index}`"
+                            >
                                 <div class="friend">
-                                    <img :src="friend.avatar || '/api/placeholder/120/120'" 
-                                         :alt="friend.displayName"/>
+                                    <img
+                                        :src="friend.avatar || '/api/placeholder/120/120'"
+                                        :alt="friend.displayName"
+                                    />
                                     <h2 x-text="friend.displayName"></h2>
-                                    <a :href="'https://bsky.app/profile/' + friend.handle" 
-                                       target="_blank" 
-                                       x-text="friend.handle"></a>
+                                    <a
+                                        :href="'https://bsky.app/profile/' + friend.handle"
+                                        target="_blank"
+                                        x-text="friend.handle"
+                                    ></a>
                                 </div>
                             </template>
                         </div>
-                    
+
                         <!-- Friend Selection Dialog -->
-                        <div x-show="showDialog" 
-                             class="dialog-overlay"
-                             @click="showDialog = false">
-                            <div class="dialog-content box"
-                                 @click.stop>
+                        <div
+                            x-show="showDialog"
+                            class="dialog-overlay"
+                            @click="showDialog = false"
+                        >
+                            <div class="dialog-content box" @click.stop>
                                 <h2>Select Your Top 8</h2>
-                                
+
                                 <!-- Current Selection Counter -->
                                 <div class="selection-counter">
-                                    Selected: <span x-text="selectedFriends.length"></span>/8
+                                    Selected:
+                                    <span x-text="selectedFriends.length"></span
+                                    >/8
                                 </div>
-                    
+
                                 <!-- Search Input -->
                                 <div class="search-box">
-                                    <input type="text"
-                                           x-model="searchQuery"
-                                           @input.debounce.500ms="searchFriends()"
-                                           placeholder="Search friends..."
-                                           :disabled="loading"/>
-                                    
-                                    <div x-show="loading" class="loading-indicator">
+                                    <input
+                                        type="text"
+                                        x-model="searchQuery"
+                                        @input.debounce.500ms="searchFriends()"
+                                        placeholder="Search friends..."
+                                        :disabled="loading"
+                                    />
+
+                                    <div
+                                        x-show="loading"
+                                        class="loading-indicator"
+                                    >
                                         <span>Loading all follows...</span>
-                                        <div class="progress-note" x-show="followsCache">
-                                            Searching across <span x-text="followsCache.length"></span> follows
+                                        <div
+                                            class="progress-note"
+                                            x-show="followsCache"
+                                        >
+                                            Searching across
+                                            <span
+                                                x-text="followsCache.length"
+                                            ></span>
+                                            follows
                                         </div>
                                     </div>
                                 </div>
-                    
+
                                 <!-- Error Message -->
-                                <div x-show="error" 
-                                     x-text="error"
-                                     class="error-message"></div>
-                    
+                                <div
+                                    x-show="error"
+                                    x-text="error"
+                                    class="error-message"
+                                ></div>
+
                                 <!-- Loading Message -->
                                 <div x-show="loading" class="loading-message">
                                     <span>Searching...</span>
                                 </div>
-                    
+
                                 <!-- Search Results -->
                                 <div class="search-results" x-show="!loading">
-                                    <template x-for="(friend, index) in searchResults" :key="friend.uniqueId || `${friend.did}-${index}`">
-                                        <div class="friend-item"
-                                             :class="{ 'selected': isFriendSelected(friend) }"
-                                             @click="toggleFriend(friend)">
-                                            <img :src="friend.avatar || '/api/placeholder/40/40'" 
-                                                 :alt="friend.displayName"
-                                                 class="avatar"/>
+                                    <template
+                                        x-for="(friend, index) in searchResults"
+                                        :key="friend.uniqueId || `${friend.did}-${index}`"
+                                    >
+                                        <div
+                                            class="friend-item"
+                                            :class="{ 'selected': isFriendSelected(friend) }"
+                                            @click="toggleFriend(friend)"
+                                        >
+                                            <img
+                                                :src="friend.avatar || '/api/placeholder/40/40'"
+                                                :alt="friend.displayName"
+                                                class="avatar"
+                                            />
                                             <div class="friend-info">
-                                                <span class="name" x-text="friend.displayName"></span>
-                                                <span class="handle" x-text="'@' + friend.handle"></span>
+                                                <span
+                                                    class="name"
+                                                    x-text="friend.displayName"
+                                                ></span>
+                                                <span
+                                                    class="handle"
+                                                    x-text="'@' + friend.handle"
+                                                ></span>
                                             </div>
-                                            <div class="select-indicator"
-                                                 x-show="isFriendSelected(friend)">
+                                            <div
+                                                class="select-indicator"
+                                                x-show="isFriendSelected(friend)"
+                                            >
                                                 ✓
                                             </div>
                                         </div>
                                     </template>
-                                    
-                                    <div x-show="searchQuery && !loading && !searchResults.length" 
-                                         class="no-results">
+
+                                    <div
+                                        x-show="searchQuery && !loading && !searchResults.length"
+                                        class="no-results"
+                                    >
                                         No friends found matching your search
                                     </div>
                                 </div>
-                    
+
                                 <!-- Dialog Buttons -->
                                 <div class="dialog-buttons">
-                                    <button @click="showDialog = false" class="cancel-button">
+                                    <button
+                                        @click="showDialog = false"
+                                        class="cancel-button"
+                                    >
                                         Cancel
                                     </button>
-                                    <button @click="saveFriends()" 
-                                            :disabled="loading"
-                                            class="save-button">
+                                    <button
+                                        @click="saveFriends()"
+                                        :disabled="loading"
+                                        class="save-button"
+                                    >
                                         Save Changes
                                     </button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
 
                     <!-- Posts Section -->
                     <!-- Replace the existing Posts Section in index.html with this: -->

@@ -49,27 +49,32 @@ document.addEventListener("alpine:init", () => {
                 [themeName]: true,
             };
         },
+        
+        async changeTheme(themeName) {
+                const result = await themeManager.setTheme(themeName);
+                this.themeClass = result;
+            }
 
-        changeTheme(themeName) {
-            if (!this.validateTheme(themeName)) return;
+        // changeTheme(themeName) {
+        //     if (!this.validateTheme(themeName)) return;
 
-            // Update Alpine state
-            this.themeClass = this.colorThemes.reduce(
-                (acc, theme) => ({
-                    ...acc,
-                    [theme]: theme === themeName,
-                }),
-                {},
-            );
+        //     // Update Alpine state
+        //     this.themeClass = this.colorThemes.reduce(
+        //         (acc, theme) => ({
+        //             ...acc,
+        //             [theme]: theme === themeName,
+        //         }),
+        //         {},
+        //     );
 
-            // Update DOM directly
-            document.body.className = "";
-            document.body.classList.add(themeName);
+        //     // Update DOM directly
+        //     document.body.className = "";
+        //     document.body.classList.add(themeName);
 
-            // Store theme
-            localStorage.setItem(CONFIG.STORAGE_KEYS.THEME, themeName);
-            this.currentTheme = themeName;
-        },
+        //     // Store theme
+        //     localStorage.setItem(CONFIG.STORAGE_KEYS.THEME, themeName);
+        //     this.currentTheme = themeName;
+        // },
     }));
 
     // Register the main app component

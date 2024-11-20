@@ -1,8 +1,11 @@
 class PDSThemeManager extends ThemeManager {
     constructor(authManager) {
-        super();
-        this.pds = new PDSRecordManager(authManager);
-    }
+            super();
+            if (!authManager) {
+                throw new Error('AuthManager is required for PDSThemeManager');
+            }
+            this.pds = new PDSRecordManager(authManager);
+        }
 
     async initialize() {
         console.debug("[PDSThemeManager] Initializing theme manager...");

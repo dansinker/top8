@@ -104,11 +104,75 @@
     <!--left column start-->
     <div id="wholething" x-data="{ person: {}, username: '' }">
         <div id="leftcolumn">
-        <div id="addbox" class="box" x-show="person.name == null">
-            <h1>enter your Bluesky handle with server</h1>
-            <input type="text" placeholder="username.bsky.social" x-model="username">
-            <button @click="initPerson(this, person, username)">add</button>
-        </div>
+            <div id="wholething" x-data="{ 
+                person: {}, 
+                username: '', 
+                password: '',
+                loginError: '',
+                loading: false,
+                async loginUser() {
+                    this.loading = true;
+                    this.loginError = '';
+                    
+                    try {
+                        const success = await initPerson(this, this.person, this.username, this.password);
+                        if (success) {
+                            this.password = ''; // Clear password after successful login
+                        }
+                    } catch (error) {
+                        this.loginError = 'Login failed. Please check your credentials.';
+                        console.error('Login error:', error);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+                logout() {
+                    logout(this.person);
+                    this.username = '';
+                    this.password = '';
+                    this.loginError = '';
+                }
+            }" x-init="checkStoredSession(person)">
+                <div id="leftcolumn">
+                    <div id="addbox" class="box" x-show="person.name == null">
+                        <h1>Log in with Bluesky</h1>
+                        <form @submit.prevent="loginUser">
+                            <div class="form-group">
+                                <label for="username">Username</label>
+                                <input 
+                                    type="text" 
+                                    id="username"
+                                    placeholder="username.bsky.social" 
+                                    x-model="username"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <input 
+                                    type="password" 
+                                    id="password"
+                                    placeholder="Your Bluesky password" 
+                                    x-model="password"
+                                    required>
+                            </div>
+                            <div class="error-message" x-show="loginError" x-text="loginError"></div>
+                            <button 
+                                type="submit" 
+                                :disabled="loading"
+                                x-text="loading ? 'Logging in...' : 'Log in'">
+                            </button>
+                        </form>
+                    </div>
+                    <!-- Rest of the existing profile box code -->
+                    <div id="profilebox" class="box" :hidden="!(person.name)">
+                        <h1><span x-text="person.name"></span></h1>
+                        <p><img x-bind:src="person.avatar"></p>
+                        <h2><a x-bind:href="person.bsky_url"><span x-text="person.bsky_handle"></span></a></h2>
+                        <p x-html="person.note"></p>
+                        <button @click="logout">Logout</button>
+                    </div>
+                </div>
+            </div>
         <div id="profilebox" class="box" :hidden="!(person.name)">
                         <h1><span x-text="person.name"></h1>
             <p><img x-bind:src="person.avatar"></p>
@@ -131,6 +195,9 @@
 
 <!-- right column start-->
 <div id="rightcolumn">
+
+    
+    
     <div id="top8box">
 
         <div x-data="{ friends: [], newFriend: '' }">

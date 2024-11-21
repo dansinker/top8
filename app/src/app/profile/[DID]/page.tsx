@@ -1,5 +1,5 @@
 // src/app/profile/[DID]/page.tsx - Viewing someone else's profile
-("use client");
+"use client";
 
 import { BaseLayout } from "@/components/layout/base-layout";
 import { UserProfile } from "@/components/profile/user-profile";

@@ -1,0 +1,97 @@
+Sure! Here’s a detailed specification document for the application represented by the merged codebase you've provided. The app appears to be a social networking platform within the "Bluesky" ecosystem, focusing on user profiles, authentication, and a feature called "Top 8 Friends."
+
+## Application Specification
+
+### Overview
+The application is a web-based platform built using Next.js, serving as a social media interface that allows users to manage their profiles, authenticate via credentials, and maintain a curated list of their "Top 8 Friends."
+
+### Key Features
+1. **User Authentication**:
+   - Users can log in and log out using email and password.
+   - The application manages user sessions using JWT (JSON Web Tokens).
+
+2. **User Profiles**:
+   - Each user has a profile containing essential information such as username, display name, and avatar.
+   - Users can view their own profiles and other users' profiles by their unique identifiers.
+
+3. **Posts Management**:
+   - Users can view their own posts and those of others in a feed format.
+   - The feed showcases text posts with timestamps.
+
+4. **Top 8 Friends List**:
+   - Users can maintain a list of their 8 closest friends.
+   - The application allows users to search for friends and add them to their Top 8 list.
+   - The top friends can be displayed on the user's profile.
+
+5. **Theme Customization**:
+   - Users can choose and customize themes for their profiles.
+   - Themes change the overall styling of the application to enhance user experience.
+
+6. **Responsive Design**:
+   - The UI components are designed to be responsive, adapting to different screen sizes.
+
+### Technology Stack
+- **Frontend**: Next.js, React, Tailwind CSS, Radix UI
+- **Backend**: Interactions with external APIs (Bluesky API)
+- **Data Management**: User sessions and profiles managed via local storage and remote server sessions.
+- **SVG icons and images**: Various SVG icons are utilized for UI elements.
+
+### File Structure
+- **Pages**: Contains the main application routes:
+  - `/profile/[did]`: Displays individual user profiles.
+  - `/profile`: Displays the main profile page.
+  - `/`: The home page with a login form.
+  
+- **Components**: Encapsulated UI components for functionality:
+  - `Auth`: Authentication UI components, including loading indicators and login forms.
+  - `Profile`: Components to display user profile information, including headers and content.
+  - `Posts`: Includes functions to manage and display user posts.
+  - `Top8`: Manages the Top 8 Friends list.
+  - `Theme`: Provides functionality for selecting and applying themes.
+
+- **Lib**: Contains hooks, services, and contexts for authentication and theming.
+- **Styles**: Global CSS styles defined using Tailwind CSS.
+- **Public**: Contains SVG and images used throughout the application.
+- **Configuration Files**: Includes configurations for ESLint, Tailwind CSS, PostCSS, and TypeScript.
+
+### User Interface Components
+1. **Login Form**:
+    - Fields for username and password.
+    - Submit button that triggers authentication.
+
+2. **Profile Header**:
+    - Displays user's avatar and personal information.
+    - Logout button.
+
+3. **User Post Feed**:
+    - Lists all posts made by the user in chronological order.
+
+4. **Top 8 Friends**:
+    - Grid layout displaying the Top 8 friends with the option to add more.
+    - Supports searching to add friends efficiently.
+
+5. **Theme Picker**:
+    - Button options allowing users to choose different themes.
+
+### API Structure
+- **Authentication API**:
+  - `POST /com.atproto.server.createSession`: Creates a user session.
+  - `GET /app.bsky.actor.getProfile`: Fetches user profile by unique identifier.
+  
+- **Post and Feed API**:
+  - `GET /xrpc/app.bsky.feed.getAuthorFeed`: Retrieves posts for a specific author using their DID (Decentralized Identifier).
+
+### User Roles
+- **User**: 
+  - Can log in, manage their profile and post content, and customize their experience through themes.
+
+### Security Considerations
+- Implement secure storage for JWTs in the browser.
+- Ensure error handling is in place for API interactions to manage unauthorized access or session expirations.
+
+### Future Enhancements
+- **Mobile App**: Consider developing a mobile version of the app.
+- **Additional Features**: Introduce direct messaging, notifications, and extended user customization options.
+
+### Conclusion
+This application serves as a foundational social networking platform that utilizes modern web technologies while maintaining a user-friendly interface. The modular structure allows for easy updates and integration of new features in the future.

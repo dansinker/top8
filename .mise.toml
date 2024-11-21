@@ -10,7 +10,6 @@ run = "parcel serve src/index.html"
 # Define the linting task to check code quality
 run = "npx oxlint@latest  ."
 
-
 [tasks."parcel:lint"]
 # Lint JavaScript, TypeScript, and CSS using a linter like ESLint and Stylelint
 run = "npx @biomejs/biome lint ."

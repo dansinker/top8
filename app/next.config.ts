@@ -1,12 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-    output: "export", // Enable static exports
+    output: "export",
     images: {
-        unoptimized: true, // Required for static export
+        unoptimized: true,
     },
-    // Since we're doing client-side routing, we don't need trailing slash
-    trailingSlash: false,
 };
 
 export default nextConfig;

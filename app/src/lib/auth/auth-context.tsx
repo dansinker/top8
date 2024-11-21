@@ -1,37 +1,36 @@
 // src/lib/auth/auth-context.tsx
-import { createContext, useContext, ReactNode } from 'react'
-import { useAuth } from '@/lib/hooks/useAuth'
-import { Profile } from '@/lib/services/auth'
+"use client";
+
+import { createContext, useContext, ReactNode } from "react";
+import { useAuthState } from "@/lib/hooks/useAuthState";
+import { Profile } from "@/lib/services/auth";
+import { AuthLoading } from "@/components/auth/auth-loading";
 
 interface AuthContextValue {
-  isAuthenticated: boolean
-  profile: Profile | null
-  accessJwt: string | null
-  loading: boolean
-  login: (identifier: string, password: string) => Promise<void>
-  logout: () => void
+    isAuthenticated: boolean;
+    profile: Profile | null;
+    accessJwt: string | null;
+    loading: boolean;
+    login: (identifier: string, password: string) => Promise<void>;
+    logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextValue | undefined>(undefined)
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const auth = useAuth()
+    const auth = useAuthState();
 
-  if (auth.loading) {
-    return <div>Loading...</div> // Or your loading component
-  }
+    if (auth.loading) {
+        return <AuthLoading />;
+    }
 
-  return (
-    <AuthContext.Provider value={auth}>
-      {children}
-    </AuthContext.Provider>
-  )
+    return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
 }
 
-export function useAuthContext() {
-  const context = useContext(AuthContext)
-  if (context === undefined) {
-    throw new Error('useAuthContext must be used within an AuthProvider')
-  }
-  return context
+export function useAuth() {
+    const context = useContext(AuthContext);
+    if (context === undefined) {
+        throw new Error("useAuth must be used within an AuthProvider");
+    }
+    return context;
 }

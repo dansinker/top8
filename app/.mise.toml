@@ -34,4 +34,4 @@ run = "npm run  export"
 
 [tasks."next:clean"]
 # Define a cleaning command, if necessary
-run = "rm -rf .next"
+run = "rm -rf .next node_modules"

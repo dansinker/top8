@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ export function LoginForm() {
     const [loading] = useState(false);
 
     return (
-        <form className="space-y-4 box">
+        <form className="space-y-4">
             {error && (
                 <Alert variant="destructive">
                     <AlertDescription>{error}</AlertDescription>

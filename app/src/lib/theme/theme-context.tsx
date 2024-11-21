@@ -9,7 +9,7 @@ import {
     useEffect,
     useCallback,
 } from "react";
-import { useAuth } from "@/lib/hooks/useAuth";
+import { useAuthState } from "@/lib/hooks/useAuthState";
 
 // Configuration
 const CONFIG = {
@@ -119,7 +119,7 @@ const themeProperties = {
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
     const [theme, setThemeState] = useState<ThemeName>("pink");
-    const { accessJwt, profile, isAuthenticated } = useAuth();
+    const { accessJwt, profile, isAuthenticated } = useAuthState();
 
     const applyTheme = useCallback((themeName: ThemeName) => {
         const colors = themeProperties[themeName];

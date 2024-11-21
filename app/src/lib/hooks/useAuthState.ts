@@ -1,6 +1,8 @@
+// src/lib/hooks/useAuth.ts
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { authService } from '@/lib/services/auth'
+import { authService } from "@/lib/services/auth";
+import type { Profile } from "@/lib/services/auth";
 
 interface AuthState {
     isAuthenticated: boolean;
@@ -9,7 +11,7 @@ interface AuthState {
     loading: boolean;
 }
 
-export function useAuth() {
+export function useAuthState() {
     const [state, setState] = useState<AuthState>({
         isAuthenticated: false,
         profile: null,

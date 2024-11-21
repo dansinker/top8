@@ -10,7 +10,7 @@ run = "npm run  dev"
 
 [tasks."next:lint"]
 # Define the linting task to check code quality
-run = "eslint ."
+run = "npx @biomejs/biome lint --write ."
 
 [tasks."next:test"]
 # Define the testing command to run your tests

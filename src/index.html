@@ -10,75 +10,99 @@
 
     <!-- Main JS Entry Point -->
     <script type="module" src="js/index.js"></script>
-
-    <!-- Styles -->
-    <link rel="stylesheet" href="css/styles.css" />
   </head>
-
   <body x-data="theme()" :class="themeClass" class="default">
     <div id="wrapper">
-      <!-- Logo Section -->
-      <div id="logo">
-        <img src="images/logo.svg" />
+      <div id="logo" class="flex items-center justify-center">
+        <img src="/images/logo.svg" alt="Top 8 Space" class="py-4" />
       </div>
 
       <div id="wholething" x-data="appState" x-init="init">
         <!-- Left Column -->
         <div id="leftcolumn">
           <!-- Login Form -->
-          <div id="addbox" class="box" x-show="!person.name">
-            <h1>Log in with Bluesky</h1>
-            <form @submit.prevent="loginUser">
-              <div class="form-group">
-                <label for="username">Username</label>
-                <input
-                  type="text"
-                  id="username"
-                  placeholder="username.bsky.social"
-                  x-model="username"
-                  required
-                />
-              </div>
-              <div class="form-group">
-                <label for="password">Password</label>
-                <input
-                  type="password"
-                  id="password"
-                  placeholder="Your Bluesky password"
-                  x-model="password"
-                  required
-                />
-              </div>
-              <div
-                class="error-message"
-                x-show="loginError"
-                x-text="loginError"
-              ></div>
-              <button
-                type="submit"
-                :disabled="loading"
-                x-text="loading ? 'Logging in...' : 'Log in'"
-              ></button>
-            </form>
+          <div
+            x-show="!person.name"
+            class="box bg-white/80 rounded-lg shadow-md"
+          >
+            <h1 class="text-lg font-semibold px-4 py-3">Log in with Bluesky</h1>
+            <div class="p-4">
+              <form @submit.prevent="loginUser" class="space-y-4">
+                <div class="space-y-2">
+                  <label for="username" class="block text-sm font-medium"
+                    >Username</label
+                  >
+                  <input
+                    type="text"
+                    id="username"
+                    placeholder="username.bsky.social"
+                    x-model="username"
+                    required
+                    class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+                <div class="space-y-2">
+                  <label for="password" class="block text-sm font-medium"
+                    >Password</label
+                  >
+                  <input
+                    type="password"
+                    id="password"
+                    placeholder="Your Bluesky password"
+                    x-model="password"
+                    required
+                    class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+                <div
+                  x-show="loginError"
+                  x-text="loginError"
+                  class="text-red-600 bg-red-50 p-2 rounded-md mt-2"
+                ></div>
+                <button
+                  type="submit"
+                  :disabled="loading"
+                  x-text="loading ? 'Logging in...' : 'Log in'"
+                  class="w-full px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+                ></button>
+              </form>
+            </div>
           </div>
 
           <!-- Profile Box -->
-          <div id="profilebox" class="box" x-show="person.name">
-            <h1><span x-text="person.name"></span></h1>
-            <p><img :src="person.avatar" :alt="person.name" /></p>
-            <h2>
-              <a :href="person.bsky_url" target="_blank"
-                ><span x-text="person.bsky_handle"></span
-              ></a>
-            </h2>
-            <p x-html="person.note"></p>
-            <button @click="logout">Logout</button>
+          <div x-show="person.name" class="box">
+            <h1 class="flex justify-between items-center">
+              <span x-text="person.name"></span>
+            </h1>
+            <div class="p-4 space-y-4">
+              <img
+                :src="person.avatar"
+                :alt="person.name"
+                class="w-full rounded-lg shadow-md"
+              />
+              <h2 class="text-lg">
+                <a
+                  :href="person.bsky_url"
+                  target="_blank"
+                  class="hover:underline"
+                >
+                  <span x-text="person.bsky_handle"></span>
+                </a>
+              </h2>
+              <p x-html="person.note" class="text-sm"></p>
+              <button
+                @click="logout"
+                class="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+              >
+                Logout
+              </button>
+            </div>
           </div>
 
           <!-- Theme Selector -->
-          <div id="editbox" class="box" x-data="theme()" x-init="init()">
+          <div x-data="theme()" x-init="init()" class="box mt-4">
             <h1>Choose Your Theme</h1>
-            <div class="color-theme-container">
+            <div class="p-4 flex flex-wrap gap-2">
               <template x-for="(ct, index) in colorThemes" :key="index">
                 <span
                   :class="choiceClass(ct)"
@@ -93,18 +117,17 @@
 
         <!-- Right Column -->
         <div id="rightcolumn">
-          <!-- Friends List -->
-          <!-- Replace the entire top8box div with this corrected version -->
-          <div id="top8box" x-data="top8" x-init="init()">
-            <h1>My Top <span x-text="friends.length"></span></h1>
-
-            <!-- Add Friend Button -->
-            <button
-              @click="showDialog = true; searchQuery = ''; searchResults = []"
-              class="edit-button"
-            >
-              Edit Top 8
-            </button>
+          <!-- Top 8 Section -->
+          <div x-data="top8" x-init="init()" class="box mb-6">
+            <h1 class="flex justify-between items-center">
+              <span>My Top <span x-text="friends.length"></span></span>
+              <button
+                @click="showDialog = true; searchQuery = ''; searchResults = []"
+                class="text-sm px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Edit Top 8
+              </button>
+            </h1>
 
             <!-- Friends Grid -->
             <div class="friends-grid">
@@ -112,69 +135,64 @@
                 x-for="(friend, index) in friends"
                 :key="friend.uniqueId || `${friend.did}-${index}`"
               >
-                <div class="friend">
+                <div class="friend text-center">
                   <img
                     :src="friend.avatar || '/api/placeholder/120/120'"
                     :alt="friend.displayName"
+                    class="rounded-lg shadow-md mx-auto"
                   />
-                  <h2 x-text="friend.displayName"></h2>
+                  <h2
+                    x-text="friend.displayName"
+                    class="mt-2 font-semibold"
+                  ></h2>
                   <a
                     :href="'https://bsky.app/profile/' + friend.handle"
                     target="_blank"
                     x-text="friend.handle"
+                    class="text-blue-600 hover:underline"
                   ></a>
                 </div>
               </template>
             </div>
 
             <!-- Friend Selection Dialog -->
-            <div
-              x-show="showDialog"
-              class="dialog-overlay"
-              @click="showDialog = false"
-            >
-              <div class="dialog-content box" @click.stop>
-                <h2>Select Your Top 8</h2>
-
-                <!-- Current Selection Counter -->
-                <div class="selection-counter">
-                  Selected:
-                  <span x-text="selectedFriends.length"></span>/8
+            <div x-show="showDialog" class="dialog-overlay">
+              <div class="dialog-content" @click.stop>
+                <div class="flex justify-between items-center mb-4">
+                  <h2 class="text-xl font-semibold">Select Your Top 8</h2>
+                  <div class="text-sm text-gray-600">
+                    Selected: <span x-text="selectedFriends.length"></span>/8
+                  </div>
                 </div>
 
                 <!-- Search Input -->
-                <div class="search-box">
+                <div class="mb-4">
                   <input
                     type="text"
                     x-model="searchQuery"
                     @input.debounce.500ms="searchFriends()"
                     placeholder="Search friends..."
                     :disabled="loading"
+                    class="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
-
-                  <div x-show="loading" class="loading-indicator">
-                    <span>Loading all follows...</span>
-                    <div class="progress-note" x-show="followsCache">
-                      Searching across
-                      <span x-text="followsCache.length"></span>
-                      follows
-                    </div>
-                  </div>
                 </div>
 
                 <!-- Error Message -->
                 <div x-show="error" x-text="error" class="error-message"></div>
 
                 <!-- Loading Message -->
-                <div x-show="loading" class="loading-message">
+                <div x-show="loading" class="loading-indicator">
                   <span>Searching...</span>
                 </div>
 
                 <!-- Search Results -->
-                <div class="search-results" x-show="!loading">
+                <div
+                  class="search-results overflow-y-auto max-h-96"
+                  x-show="!loading"
+                >
                   <template
-                    x-for="(friend, index) in searchResults"
-                    :key="friend.uniqueId || `${friend.did}-${index}`"
+                    x-for="friend in searchResults"
+                    :key="friend.uniqueId"
                   >
                     <div
                       class="friend-item"
@@ -187,38 +205,31 @@
                         class="avatar"
                       />
                       <div class="friend-info">
-                        <span class="name" x-text="friend.displayName"></span>
+                        <span
+                          class="font-medium"
+                          x-text="friend.displayName"
+                        ></span>
                         <span
                           class="handle"
                           x-text="'@' + friend.handle"
                         ></span>
                       </div>
-                      <div
-                        class="select-indicator"
-                        x-show="isFriendSelected(friend)"
-                      >
-                        ✓
-                      </div>
                     </div>
                   </template>
-
-                  <div
-                    x-show="searchQuery && !loading && !searchResults.length"
-                    class="no-results"
-                  >
-                    No friends found matching your search
-                  </div>
                 </div>
 
                 <!-- Dialog Buttons -->
                 <div class="dialog-buttons">
-                  <button @click="showDialog = false" class="cancel-button">
+                  <button
+                    @click="showDialog = false"
+                    class="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+                  >
                     Cancel
                   </button>
                   <button
                     @click="saveFriends()"
                     :disabled="loading"
-                    class="save-button"
+                    class="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700"
                   >
                     Save Changes
                   </button>
@@ -228,39 +239,55 @@
           </div>
 
           <!-- Posts Section -->
-          <!-- Replace the existing Posts Section in index.html with this: -->
           <template x-if="person.bsky_handle">
-            <div id="postbox" x-data="posts">
+            <div x-data="posts" class="box">
               <h1>My Latest Posts</h1>
-
-              <!-- Loading State -->
-              <div x-show="loading" class="loading">Loading posts...</div>
-
-              <!-- Error State -->
-              <div x-show="error" class="error" x-text="error"></div>
-
-              <!-- Posts -->
-              <template x-for="blog in blogs" :key="blog.uri">
-                <div class="post">
-                  <p x-html="blog.text"></p>
-                  <div class="post-meta">
-                    <a :href="blog.author.url" target="_blank">
-                      <span x-text="blog.author.name"></span>
-                      (@<span x-text="blog.author.handle"></span>)
-                    </a>
-                    <span
-                      x-text="new Date(blog.createdAt).toLocaleString()"
-                    ></span>
-                  </div>
+              <div class="p-4">
+                <!-- Loading State -->
+                <div x-show="loading" class="text-center py-4">
+                  <div
+                    class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"
+                  ></div>
+                  <p class="mt-2 text-gray-600">Loading posts...</p>
                 </div>
-              </template>
 
-              <!-- No Posts State -->
-              <div
-                x-show="!loading && !error && blogs.length === 0"
-                class="no-posts"
-              >
-                No posts found
+                <!-- Error State -->
+                <div
+                  x-show="error"
+                  x-text="error"
+                  class="text-red-600 bg-red-50 p-4 rounded-md"
+                ></div>
+
+                <!-- Posts -->
+                <template x-for="blog in blogs" :key="blog.uri">
+                  <div
+                    class="post border-b border-gray-200 last:border-b-0 py-4"
+                  >
+                    <p x-html="blog.text" class="mb-2"></p>
+                    <div class="text-sm text-gray-600">
+                      <a
+                        :href="blog.author.url"
+                        target="_blank"
+                        class="hover:underline"
+                      >
+                        <span x-text="blog.author.name"></span>
+                        (@<span x-text="blog.author.handle"></span>)
+                      </a>
+                      <span class="mx-2">•</span>
+                      <span
+                        x-text="new Date(blog.createdAt).toLocaleString()"
+                      ></span>
+                    </div>
+                  </div>
+                </template>
+
+                <!-- No Posts State -->
+                <div
+                  x-show="!loading && !error && blogs.length === 0"
+                  class="text-center py-8 text-gray-500"
+                >
+                  No posts found
+                </div>
               </div>
             </div>
           </template>

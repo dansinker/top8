@@ -1,3 +1,4 @@
+// src/lib/auth/auth-context.tsx
 "use client";
 
 import {
@@ -6,6 +7,7 @@ import {
     ReactNode,
     useState,
     useEffect,
+    useCallback,
 } from "react";
 
 interface Profile {
@@ -29,6 +31,8 @@ interface AuthContextType extends AuthState {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const STORAGE_KEY = "auth_session";
+
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [authState, setAuthState] = useState<AuthState>({
         isAuthenticated: false,
@@ -36,23 +40,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         accessJwt: null,
         refreshJwt: null,
     });
+    const [isLoading, setIsLoading] = useState(true);
 
-    // Check for existing session on mount
-    useEffect(() => {
-        const checkSession = async () => {
-            const stored = localStorage.getItem("auth");
-            if (stored) {
-                const session = JSON.parse(stored);
+    // Load session from storage
+    const loadSession = useCallback(async () => {
+        try {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (!stored) {
+                setIsLoading(false);
+                return;
+            }
+
+            const session = JSON.parse(stored);
+
+            // Verify the session is still valid by making a test API call
+            const profileResponse = await fetch(
+                `https://bsky.social/xrpc/app.bsky.actor.getProfile?actor=${session.profile.handle}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${session.accessJwt}`,
+                    },
+                },
+            );
+
+            if (profileResponse.ok) {
                 setAuthState({
                     isAuthenticated: true,
                     profile: session.profile,
                     accessJwt: session.accessJwt,
                     refreshJwt: session.refreshJwt,
                 });
+            } else {
+                // If the session is invalid, clear it
+                localStorage.removeItem(STORAGE_KEY);
             }
-        };
-        checkSession();
+        } catch (error) {
+            console.error("Error loading session:", error);
+            localStorage.removeItem(STORAGE_KEY);
+        } finally {
+            setIsLoading(false);
+        }
     }, []);
+
+    // Check for existing session on mount
+    useEffect(() => {
+        loadSession();
+    }, [loadSession]);
 
     const login = async (identifier: string, password: string) => {
         try {
@@ -102,7 +135,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             };
 
             setAuthState(authData);
-            localStorage.setItem("auth", JSON.stringify(authData));
+            // Store in localStorage with the consistent key
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(authData));
         } catch (error) {
             console.error("Login error:", error);
             throw error;
@@ -116,8 +150,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             accessJwt: null,
             refreshJwt: null,
         });
-        localStorage.removeItem("auth");
+        localStorage.removeItem(STORAGE_KEY);
     };
+
+    if (isLoading) {
+        return null; // or a loading spinner
+    }
 
     return (
         <AuthContext.Provider value={{ ...authState, login, logout }}>

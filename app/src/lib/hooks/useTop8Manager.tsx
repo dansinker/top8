@@ -243,7 +243,7 @@ export function useTop8Manager(viewDid?: string) {
                     const data = await response.json();
                     // Add unique identifiers to each friend
                     const friendsList = data?.value?.items || [];
-                    const friendsWithIds = friendsList.map((friend, index) => ({
+                    const friendsWithIds = friendsList.map((friend: {subject: string}, index: number) => ({
                         ...friend,
                         uniqueId: `${friend.subject}-${index}`,
                         position: index,

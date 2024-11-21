@@ -157,7 +157,7 @@ export function Top8List({ did }: { did?: string }) {
 					))}
 					{Array.from({ length: 8 - friends.length }).map((_, i) => (
 						<div
-							key={`empty-${i}`}
+							key={`empty-spot-${friends.length + i}-${Math.random().toString(36).substr(2, 9)}`}
 							className="flex flex-col items-center justify-center h-32 bg-muted rounded-lg"
 						>
 							<span className="text-muted-foreground">Empty</span>

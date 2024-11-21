@@ -12,16 +12,17 @@ interface ThemeButtonProps {
 
 function ThemeButton({ themeName, isSelected, onClick }: ThemeButtonProps) {
 	return (
-		<button
-			onClick={onClick}
-			className={`color-choice ${isSelected ? "selected" : ""}`}
-			style={
-				{
-					"--picker-color": `var(--theme-${themeName})`,
-				} as React.CSSProperties
-			}
-			title={themeName.charAt(0).toUpperCase() + themeName.slice(1)}
-		/>
+	<button
+		type="button"
+		onClick={onClick}
+		className={`color-choice ${isSelected ? "selected" : ""}`}
+		style={
+			{
+				"--picker-color": `var(--theme-${themeName})`,
+			} as React.CSSProperties
+		}
+		title={themeName.charAt(0).toUpperCase() + themeName.slice(1)}
+	/>
 	);
 }
 

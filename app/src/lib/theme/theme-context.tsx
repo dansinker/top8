@@ -9,6 +9,15 @@ import {
     useEffect,
     useCallback,
 } from "react";
+import { useAuth } from "@/lib/auth/auth-context";
+
+// Configuration
+const CONFIG = {
+    THEME: {
+        RECORD_TYPE: "app.top8.theme",
+        RECORD_KEY: "self",
+    },
+};
 
 type ThemeName =
     | "pink"
@@ -23,7 +32,7 @@ type ThemeName =
 
 interface ThemeContextType {
     theme: ThemeName;
-    setTheme: (theme: ThemeName) => void;
+    setTheme: (theme: ThemeName) => Promise<void>;
     themes: ThemeName[];
 }
 
@@ -110,6 +119,7 @@ const themeProperties = {
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
     const [theme, setThemeState] = useState<ThemeName>("pink");
+    const { accessJwt, profile, isAuthenticated } = useAuth();
 
     const applyTheme = useCallback((themeName: ThemeName) => {
         const colors = themeProperties[themeName];
@@ -129,26 +139,118 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
         // Set theme class on body
         body.className = themeName;
-
-        // Store theme preference
-        localStorage.setItem("theme", themeName);
     }, []);
 
-    const setTheme = useCallback(
-        (newTheme: ThemeName) => {
-            setThemeState(newTheme);
-            applyTheme(newTheme);
+    // Save theme to ATP
+    const saveThemeToATP = useCallback(
+        async (themeName: ThemeName) => {
+            if (!accessJwt || !profile?.did) return;
+
+            try {
+                const record = {
+                    theme: themeName,
+                    updatedAt: new Date().toISOString(),
+                    $type: CONFIG.THEME.RECORD_TYPE,
+                };
+
+                const response = await fetch(
+                    "https://bsky.social/xrpc/com.atproto.repo.putRecord",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${accessJwt}`,
+                        },
+                        body: JSON.stringify({
+                            repo: profile.did,
+                            collection: CONFIG.THEME.RECORD_TYPE,
+                            rkey: CONFIG.THEME.RECORD_KEY,
+                            record,
+                        }),
+                    },
+                );
+
+                if (!response.ok) {
+                    throw new Error("Failed to save theme to ATP");
+                }
+            } catch (error) {
+                console.error("Error saving theme to ATP:", error);
+            }
         },
-        [applyTheme],
+        [accessJwt, profile?.did],
     );
 
-    // Initialize theme from localStorage or default
+    // Load theme from ATP
+    const loadThemeFromATP = useCallback(async () => {
+        if (!accessJwt || !profile?.did) return null;
+
+        try {
+            const response = await fetch(
+                `https://bsky.social/xrpc/com.atproto.repo.getRecord?${new URLSearchParams(
+                    {
+                        repo: profile.did,
+                        collection: CONFIG.THEME.RECORD_TYPE,
+                        rkey: CONFIG.THEME.RECORD_KEY,
+                    },
+                )}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessJwt}`,
+                    },
+                },
+            );
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data?.value?.theme && themes.includes(data.value.theme)) {
+                    return data.value.theme as ThemeName;
+                }
+            }
+        } catch (error) {
+            console.error("Error loading theme from ATP:", error);
+        }
+        return null;
+    }, [accessJwt, profile?.did]);
+
+    const setTheme = useCallback(
+        async (newTheme: ThemeName) => {
+            setThemeState(newTheme);
+            applyTheme(newTheme);
+
+            // Save to both localStorage and ATP
+            localStorage.setItem("theme", newTheme);
+            if (isAuthenticated) {
+                await saveThemeToATP(newTheme);
+            }
+        },
+        [applyTheme, isAuthenticated, saveThemeToATP],
+    );
+
+    // Initialize theme
     useEffect(() => {
-        const stored = localStorage.getItem("theme") as ThemeName | null;
-        const initialTheme =
-            stored && themes.includes(stored) ? stored : "pink";
-        setTheme(initialTheme);
-    }, [setTheme]);
+        const initializeTheme = async () => {
+            let initialTheme: ThemeName | null = null;
+
+            // Try to load theme from ATP first if authenticated
+            if (isAuthenticated) {
+                initialTheme = await loadThemeFromATP();
+            }
+
+            // Fall back to localStorage if no ATP theme
+            if (!initialTheme) {
+                const stored = localStorage.getItem(
+                    "theme",
+                ) as ThemeName | null;
+                initialTheme =
+                    stored && themes.includes(stored) ? stored : "pink";
+            }
+
+            setThemeState(initialTheme);
+            applyTheme(initialTheme);
+        };
+
+        initializeTheme();
+    }, [isAuthenticated, loadThemeFromATP, applyTheme]);
 
     return (
         <ThemeContext.Provider value={{ theme, setTheme, themes }}>

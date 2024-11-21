@@ -48,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-const auth = useAuthStore();
+const auth = useAuth();
 const router = useRouter();
 
 const handleLogout = async () => {

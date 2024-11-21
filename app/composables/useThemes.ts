@@ -1,5 +1,4 @@
 // composables/useTheme.ts
-import { useProfileStore } from "~/stores/profile";
 
 interface ThemeColors {
     primary: string;
@@ -11,7 +10,7 @@ interface ThemeColors {
 }
 
 export const useTheme = () => {
-    const profile = useProfileStore();
+    const profile = useProfile();
 
     // Compute complementary color
     const getComplementaryColor = (hex: string): string => {

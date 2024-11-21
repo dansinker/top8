@@ -57,7 +57,7 @@ const props = defineProps<{
     loading?: boolean;
 }>();
 
-const auth = useAuthStore();
+const auth = useAuth();
 
 // Format utilities
 const formatDate = (date: string) => {

@@ -4,71 +4,81 @@
         <div class="w-full max-w-md">
             <!-- Classic MySpace-style table layout -->
             <table class="w-full bg-white border border-[#003399]">
-                <tr>
-                    <td class="bg-[#003399] text-white font-bold p-2">
-                        Member Login
-                    </td>
-                </tr>
-                <tr>
-                    <td class="p-4">
-                        <form @submit.prevent="handleLogin" class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-bold mb-2">
-                                    Bluesky Handle or Email:
-                                </label>
-                                <input
-                                    v-model="identifier"
-                                    type="text"
-                                    class="w-full p-2 border border-[#003399]"
-                                    required
-                                />
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-bold mb-2">
-                                    App Password:
-                                </label>
-                                <input
-                                    v-model="password"
-                                    type="password"
-                                    class="w-full p-2 border border-[#003399]"
-                                    required
-                                />
-                            </div>
-
-                            <div
-                                v-if="error"
-                                class="text-red-600 text-sm p-2 bg-red-50"
+                <tbody>
+                    <tr>
+                        <td class="bg-[#003399] text-white font-bold p-2">
+                            Member Login
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="p-4">
+                            <form
+                                @submit.prevent="handleLogin"
+                                class="space-y-4"
                             >
-                                {{ error }}
-                            </div>
+                                <div>
+                                    <label class="block text-sm font-bold mb-2">
+                                        Bluesky Handle or Email:
+                                    </label>
+                                    <input
+                                        v-model="identifier"
+                                        type="text"
+                                        class="w-full p-2 border border-[#003399]"
+                                        required
+                                    />
+                                </div>
 
-                            <div class="flex items-center justify-between">
-                                <button
-                                    type="submit"
-                                    class="bg-[#003399] text-white px-4 py-2 hover:bg-[#002266]"
-                                    :disabled="isLoading"
+                                <div>
+                                    <label class="block text-sm font-bold mb-2">
+                                        App Password:
+                                    </label>
+                                    <input
+                                        v-model="password"
+                                        type="password"
+                                        class="w-full p-2 border border-[#003399]"
+                                        required
+                                    />
+                                </div>
+
+                                <div
+                                    v-if="error"
+                                    class="text-red-600 text-sm p-2 bg-red-50"
                                 >
-                                    {{ isLoading ? "Logging in..." : "Login" }}
-                                </button>
-                            </div>
+                                    {{ error }}
+                                </div>
 
-                            <div class="mt-4 text-sm">
-                                <p class="text-gray-600">
-                                    Note: Please use your Bluesky App Password
-                                    instead of your main account password.
-                                    <a
-                                        href="https://bsky.app/settings"
-                                        target="_blank"
-                                        class="text-[#003399] underline"
+                                <div class="flex items-center justify-between">
+                                    <button
+                                        type="submit"
+                                        class="bg-[#003399] text-white px-4 py-2 hover:bg-[#002266]"
+                                        :disabled="isLoading"
                                     >
-                                        Create an App Password
-                                    </a>
-                                </p>
-                            </div>
-                        </form>
-                    </td>
-                </tr>
+                                        {{
+                                            isLoading
+                                                ? "Logging in..."
+                                                : "Login"
+                                        }}
+                                    </button>
+                                </div>
+
+                                <div class="mt-4 text-sm">
+                                    <p class="text-gray-600">
+                                        Note: Please use your Bluesky App
+                                        Password instead of your main account
+                                        password.
+                                        <a
+                                            href="https://bsky.app/settings"
+                                            target="_blank"
+                                            class="text-[#003399] underline"
+                                        >
+                                            Create an App Password
+                                        </a>
+                                    </p>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
             </table>
 
             <!-- Logo and Branding -->

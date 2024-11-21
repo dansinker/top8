@@ -1,6 +1,6 @@
 // middleware/auth.ts
 export default defineNuxtRouteMiddleware((to, from) => {
-    const auth = useAuthStore();
+    const auth = useAuth();
 
     // Routes that don't require authentication
     const publicRoutes = ["/", "/login"];

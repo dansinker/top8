@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 
 export default function UserProfilePage() {
     const params = useParams();
-    const did = params.DID as string;
+    const did = params?.DID as string;
 
     return (
         <BaseLayout>

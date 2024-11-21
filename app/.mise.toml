@@ -8,9 +8,17 @@ run = "npm run build"
 # Define the development command for local development
 run = "npm run  dev"
 
+[tasks."next:oxlint"]
+# Define the linting task to check code quality
+run = "npx oxlint@latest -c .oxlintrc.json ."
+
 [tasks."next:lint"]
 # Define the linting task to check code quality
-run = "npx @biomejs/biome lint --write ."
+run = "npx @biomejs/biome lint  . --ignore-path out"
+
+[tasks."next:lint-fix"]
+# Define the linting task to check code quality
+run = "npx @biomejs/biome lint ."
 
 [tasks."next:test"]
 # Define the testing command to run your tests

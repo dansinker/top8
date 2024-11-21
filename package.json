@@ -1,0 +1,23 @@
+{
+  "name": "top8-space",
+  "version": "1.0.0",
+  "description": "Top 8 friends for Bluesky",
+  "source": "src/index.html",
+  "browserslist": "> 0.5%, last 2 versions, not dead",
+  "scripts": {
+    "start": "parcel",
+    "build": "parcel build",
+    "clean": "rm -rf dist .parcel-cache",
+    "format": "prettier --write 'src/**/*.{js,html,css}'",
+    "lint": "eslint 'src/**/*.js'"
+  },
+  "dependencies": {
+    "alpinejs": "^3.13.3"
+  },
+  "devDependencies": {
+    "@parcel/transformer-sass": "^2.10.3",
+    "eslint": "^8.55.0",
+    "parcel": "^2.10.3",
+    "prettier": "^3.1.1"
+  }
+}

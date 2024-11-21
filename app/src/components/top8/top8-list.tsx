@@ -1,3 +1,4 @@
+// src/components/top8/top8-list.tsx
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -12,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useTop8Manager } from "@/lib/hooks/useTop8Manager";
 import Link from "next/link";
+import { useAuth } from "@/lib/auth/auth-context";
 
 interface Friend {
     did: string;
@@ -21,11 +23,14 @@ interface Friend {
 }
 
 export function Top8List({ did }: { did?: string }) {
-    const { friends, loading, error, searchFollows, saveFriends } =
-        useTop8Manager();
+    const { profile } = useAuth();
+    const { friends, loading, error, searchFollows, saveFriends } = useTop8Manager(did);
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState<Friend[]>([]);
     const [searching, setSearching] = useState(false);
+    
+    // Only show edit capabilities if viewing own profile
+    const isOwnProfile = !did || did === profile?.did;
 
     const handleSearch = async (query: string) => {
         setSearchQuery(query);
@@ -71,7 +76,7 @@ export function Top8List({ did }: { did?: string }) {
         <Card>
             <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Top 8 Friends</CardTitle>
-                {!did && (
+                {isOwnProfile && (
                     <Dialog>
                         <DialogTrigger asChild>
                             <Button variant="outline">Add Friend</Button>
@@ -84,9 +89,7 @@ export function Top8List({ did }: { did?: string }) {
                                 <Input
                                     placeholder="Search by handle or name..."
                                     value={searchQuery}
-                                    onChange={(e) =>
-                                        handleSearch(e.target.value)
-                                    }
+                                    onChange={(e) => handleSearch(e.target.value)}
                                 />
                                 <div className="max-h-[300px] overflow-y-auto space-y-2">
                                     {searching ? (
@@ -101,9 +104,7 @@ export function Top8List({ did }: { did?: string }) {
                                                     <Avatar className="h-8 w-8">
                                                         <AvatarImage
                                                             src={result.avatar}
-                                                            alt={
-                                                                result.displayName
-                                                            }
+                                                            alt={result.displayName}
                                                         />
                                                         <AvatarFallback>
                                                             {result.displayName
@@ -127,8 +128,7 @@ export function Top8List({ did }: { did?: string }) {
                                                     }
                                                     disabled={friends.some(
                                                         (f) =>
-                                                            f.did ===
-                                                            result.did,
+                                                            f.did === result.did,
                                                     )}
                                                 >
                                                     Add

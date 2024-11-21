@@ -24,11 +24,12 @@ interface Friend {
 
 export function Top8List({ did }: { did?: string }) {
     const { profile } = useAuth();
-    const { friends, loading, error, searchFollows, saveFriends } = useTop8Manager(did);
+    const { friends, loading, error, searchFollows, saveFriends } =
+        useTop8Manager(did);
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState<Friend[]>([]);
     const [searching, setSearching] = useState(false);
-    
+
     // Only show edit capabilities if viewing own profile
     const isOwnProfile = !did || did === profile?.did;
 
@@ -69,11 +70,11 @@ export function Top8List({ did }: { did?: string }) {
     }
 
     if (error) {
-        return <div className="text-red-500 p-4">{error}</div>;
+        return <div className="text-red-500 p-4 box">{error}</div>;
     }
 
     return (
-        <Card>
+        <Card className="box">
             <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Top 8 Friends</CardTitle>
                 {isOwnProfile && (
@@ -89,7 +90,9 @@ export function Top8List({ did }: { did?: string }) {
                                 <Input
                                     placeholder="Search by handle or name..."
                                     value={searchQuery}
-                                    onChange={(e) => handleSearch(e.target.value)}
+                                    onChange={(e) =>
+                                        handleSearch(e.target.value)
+                                    }
                                 />
                                 <div className="max-h-[300px] overflow-y-auto space-y-2">
                                     {searching ? (
@@ -104,7 +107,9 @@ export function Top8List({ did }: { did?: string }) {
                                                     <Avatar className="h-8 w-8">
                                                         <AvatarImage
                                                             src={result.avatar}
-                                                            alt={result.displayName}
+                                                            alt={
+                                                                result.displayName
+                                                            }
                                                         />
                                                         <AvatarFallback>
                                                             {result.displayName
@@ -128,7 +133,8 @@ export function Top8List({ did }: { did?: string }) {
                                                     }
                                                     disabled={friends.some(
                                                         (f) =>
-                                                            f.did === result.did,
+                                                            f.did ===
+                                                            result.did,
                                                     )}
                                                 >
                                                     Add

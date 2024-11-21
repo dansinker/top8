@@ -74,7 +74,7 @@ export function UserPosts({ did }: { did: string }) {
     }
 
     return (
-        <Card>
+        <Card className="box">
             <CardHeader>
                 <CardTitle>Posts</CardTitle>
             </CardHeader>

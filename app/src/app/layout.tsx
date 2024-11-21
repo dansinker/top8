@@ -20,8 +20,8 @@ export default function RootLayout({
                 <AuthProvider>
                     <ThemeProvider>
                         <div className="min-h-screen">
-                            <header className="bg-primary px-4 py-6">
-                                <div className="mx-auto max-w-4xl">
+                            <header className="bg-primary px-4 py-6 ">
+                                <div className="mx-auto max-w-4xl ">
                                     <Logo className="h-12 w-auto text-white" />
                                 </div>
                             </header>

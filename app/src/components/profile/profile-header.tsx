@@ -18,7 +18,7 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
     const displayName = profile.displayName || profile.handle;
 
     return (
-        <Card>
+        <Card className="box">
             <CardHeader className="space-y-4">
                 <Avatar className="h-24 w-24">
                     <AvatarImage src={profile.avatar} alt={displayName} />

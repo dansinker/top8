@@ -1,0 +1,37 @@
+
+
+[tasks."nuxt:build"]
+# Define the build command for your Next.js application
+run = "npm run build"
+
+[tasks."nuxt:dev"]
+# Define the development command for local development
+run = "npm run dev"
+
+[tasks."nuxt:oxlint"]
+# Define the linting task to check code quality
+run = "npx oxlint@latest  ."
+
+[tasks."nuxt:lint"]
+# Define the linting task to check code quality
+run = "npx @biomejs/biome lint  . "
+
+[tasks."nuxt:lint-fix"]
+# Define the linting task to check code quality
+run = "npx @biomejs/biome lint ."
+
+[tasks."nuxt:test"]
+# Define the testing command to run your tests
+run = "jest"
+
+[tasks."nuxt:format"]
+# Define the formatting command for your code
+run = "npx @biomejs/biome format --write ."
+
+[tasks."nuxt:export"]
+# Define the export command to generate static HTML for your Next.js application
+run = "npm run  export"
+
+[tasks."nuxt:clean"]
+# Define a cleaning command, if necessary
+run = "rm -rf .next node_modules"

@@ -1,0 +1,76 @@
+/* assets/css/main.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --theme-primary: #003399;
+    --theme-secondary: #ff6600;
+    --theme-background: #edeef3;
+    --theme-text: #000000;
+    --theme-border: #002266;
+    --theme-accent: #ff8533;
+}
+
+/* Classic MySpace-inspired base styles */
+@layer base {
+    body {
+        @apply bg-[#EDEEF3] font-sans text-gray-900;
+    }
+
+    /* Classic link styles */
+    a {
+        @apply text-[#003399] no-underline hover:underline;
+    }
+
+    /* Table styles */
+    table {
+        @apply border-collapse;
+    }
+
+    td {
+        @apply align-top;
+    }
+}
+
+/* MySpace-inspired components */
+@layer components {
+    .classic-table {
+        @apply w-full border border-gray-300 bg-white;
+    }
+
+    .classic-header {
+        @apply bg-[var(--theme-primary)] text-white font-bold p-2;
+    }
+
+    .classic-button {
+        @apply px-4 py-2 bg-[var(--theme-primary)] text-white hover:bg-[var(--theme-border)];
+    }
+
+    .profile-section {
+        @apply mb-4 border border-gray-300 bg-white;
+    }
+
+    .profile-header {
+        @apply bg-[var(--theme-primary)] text-white font-bold p-2;
+    }
+
+    .profile-content {
+        @apply p-4;
+    }
+}
+
+/* Layout utilities */
+@layer utilities {
+    .classic-border {
+        @apply border border-[var(--theme-border)];
+    }
+
+    .classic-bg {
+        @apply bg-[var(--theme-primary)];
+    }
+
+    .classic-text {
+        @apply text-[var(--theme-primary)];
+    }
+}

@@ -20,7 +20,7 @@ interface FollowsCache {
 const CONFIG = {
     TOP8: {
         RECORD_TYPE: "app.top8.space.list",
-        RECORD_KEY: "top8list",
+        RECORD_KEY: "self",
         MAX_FRIENDS: 8,
         CACHE_DURATION: 5 * 60 * 1000, // 5 minutes
         LIST_PURPOSE: "Top 8 Friends",

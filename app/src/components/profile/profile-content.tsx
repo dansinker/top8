@@ -10,30 +10,29 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export function ProfileContent() {
-    const { isAuthenticated, profile } = useAuth();
-    const router = useRouter();
+	const { isAuthenticated, profile } = useAuth();
+	const router = useRouter();
 
-    useEffect(() => {
-        if (!isAuthenticated) {
-            router.push("/");
-        }
-    }, [isAuthenticated, router]);
+	useEffect(() => {
+		if (!isAuthenticated) {
+			router.push("/");
+		}
+	}, [isAuthenticated, router]);
 
-    if (!profile) {
-        return null;
-    }
+	if (!profile) {
+		return null;
+	}
 
-    return (
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-            <div className="space-y-6">
-                <ProfileHeader profile={profile} />
-                <ThemePicker />
-            </div>
-            <div className="md:col-span-2 space-y-6">
-                <Top8List />
-                <UserPosts did={profile.did} />
-            </div>
-        </div>
-    );
+	return (
+		<div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+			<div className="space-y-6">
+				<ProfileHeader profile={profile} />
+				<ThemePicker />
+			</div>
+			<div className="md:col-span-2 space-y-6">
+				<Top8List />
+				<UserPosts did={profile.did} />
+			</div>
+		</div>
+	);
 }
-

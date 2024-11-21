@@ -1,0 +1,29 @@
+
+
+[tasks."next:build"]
+# Define the build command for your Next.js application
+run = "npm run build"
+
+[tasks."next:dev"]
+# Define the development command for local development
+run = "npm run  dev"
+
+[tasks."next:lint"]
+# Define the linting task to check code quality
+run = "eslint ."
+
+[tasks."next:test"]
+# Define the testing command to run your tests
+run = "jest"
+
+[tasks."next:format"]
+# Define the formatting command for your code
+run = "npx @biomejs/biome format --write ."
+
+[tasks."next:export"]
+# Define the export command to generate static HTML for your Next.js application
+run = "npm run  export"
+
+[tasks."next:clean"]
+# Define a cleaning command, if necessary
+run = "rm -rf .next"

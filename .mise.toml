@@ -6,13 +6,18 @@ run = "parcel build src/index.html"
 # Start the development server with Parcel
 run = "parcel serve src/index.html"
 
+[tasks."parcel:oxlint"]
+# Define the linting task to check code quality
+run = "npx oxlint@latest  ."
+
+
 [tasks."parcel:lint"]
 # Lint JavaScript, TypeScript, and CSS using a linter like ESLint and Stylelint
-run = "npx eslint 'src/**/*.{js,ts}' && npx stylelint 'src/**/*.{css,scss}'"
+run = "npx @biomejs/biome lint ."
 
 [tasks."parcel:lint-fix"]
 # Lint and fix JavaScript, TypeScript, and CSS issues
-run = "npx eslint 'src/**/*.{js,ts}' --fix && npx stylelint 'src/**/*.{css,scss}' --fix"
+run = "npx @biomejs/biome lint --write ."
 
 [tasks."parcel:test"]
 # Run tests using Jest (or another testing framework)
@@ -20,7 +25,7 @@ run = "jest"
 
 [tasks."parcel:format"]
 # Format the code using Prettier
-run = "npx prettier --write 'src/**/*.{js,ts,css,scss,html}'"
+run = "npx @biomejs/biome format --write ."
 
 [tasks."parcel:clean"]
 # Clean build artifacts and dependencies

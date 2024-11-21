@@ -1,30 +1,30 @@
 {
-  "name": "top8-space",
-  "version": "1.0.0",
-  "description": "Top 8 friends for Bluesky",
-  "source": "src/index.html",
-  "browserslist": "> 0.5%, last 2 versions, not dead",
-  "scripts": {
-    "start": "parcel",
-    "build": "parcel build",
-    "clean": "rm -rf dist .parcel-cache",
-    "format": "prettier --write 'src/**/*.{js,html,css}'",
-    "lint": "eslint 'src/**/*.js'"
-  },
-  "dependencies": {
-    "alpinejs": "^3.14.3"
-  },
-  "devDependencies": {
-    "@parcel/transformer-sass": "^2.13.0",
-    "autoprefixer": "^10.4.20",
-    "eslint": "^8.57.1",
-    "parcel": "^2.13.0",
-    "postcss": "^8.4.49",
-    "prettier": "^3.3.3",
-    "tailwindcss": "^3.4.15"
-  },
-  "main": "index.js",
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+	"name": "top8-space",
+	"version": "1.0.0",
+	"description": "Top 8 friends for Bluesky",
+	"source": "src/index.html",
+	"browserslist": "> 0.5%, last 2 versions, not dead",
+	"scripts": {
+		"start": "parcel",
+		"build": "parcel build",
+		"clean": "rm -rf dist .parcel-cache",
+		"format": "prettier --write 'src/**/*.{js,html,css}'",
+		"lint": "eslint 'src/**/*.js'"
+	},
+	"dependencies": {
+		"alpinejs": "^3.14.3"
+	},
+	"devDependencies": {
+		"@parcel/transformer-sass": "^2.13.0",
+		"autoprefixer": "^10.4.20",
+		"eslint": "^8.57.1",
+		"parcel": "^2.13.0",
+		"postcss": "^8.4.49",
+		"prettier": "^3.3.3",
+		"tailwindcss": "^3.4.15"
+	},
+	"main": "index.js",
+	"keywords": [],
+	"author": "",
+	"license": "ISC"
 }

@@ -11,29 +11,6 @@ from = "/*"
 to = "/index.html"
 status = 200
 
-[functions]
-directory = "netlify/functions"
-
-[dev]
-framework = "#custom"
-command = "npm start"
-targetPort = 1234
-port = 8888
-publish = "dist"
-
-# Asset optimization
-[build.processing]
-skip_processing = false
-[build.processing.css]
-bundle = true
-minify = true
-[build.processing.js]
-bundle = true
-minify = true
-[build.processing.html]
-pretty_urls = true
-[build.processing.images]
-compress = true
 
 # Headers for security and caching
 [[headers]]

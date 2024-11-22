@@ -19,7 +19,7 @@ export const CONFIG = {
 		RECORD_KEY: "self",
 	},
 	TOP8: {
-	    LIST_NAME: "My Top 8 Friends",
+		LIST_NAME: "My Top 8 Friends",
 		LIST_DESCRIPTION: "My Top 8 Friends",
 		RECORD_TYPE: "app.bsky.graph.list", // Using the standard list type
 		RECORD_KEY: "top8friends",

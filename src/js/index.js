@@ -32,6 +32,7 @@ import "./alpine/alpine-auth";
 import "./alpine/alpine-theme";
 import "./alpine/alpine-posts";
 import "./alpine/alpine-top8";
+import "./alpine/alpine-router";
 
 // Initialize Alpine
 window.Alpine = Alpine;

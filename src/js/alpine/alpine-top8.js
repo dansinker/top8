@@ -22,6 +22,15 @@ document.addEventListener("alpine:init", () => {
 				} else {
 					this.friends = [];
 				}
+				// Handle route changes to load friends based on route
+				this.$watch("$route.path", async (path) => {
+					if (path.startsWith("/profile/")) {
+						const did = path.split("/profile/")[1];
+						if (did) {
+							await this.loadFriendsForDid(did);
+						}
+					}
+				});
 			});
 		},
 
@@ -36,6 +45,22 @@ document.addEventListener("alpine:init", () => {
 			} catch (error) {
 				console.error("Failed to load friends:", error);
 				this.error = `Failed to load friends: ${error.message}`;
+			} finally {
+				this.loading = false;
+			}
+		},
+
+		async loadFriendsForDid(did) {
+			try {
+				this.loading = true;
+				this.error = null;
+				const friends = await window.managers.top8Manager.loadFriendsForDid(did);
+				this.friends = friends;
+				this.selectedFriends = [...friends]; // Copy current friends to selected
+				Alpine.store("state").setTop8Friends(friends);
+			} catch (error) {
+				console.error("Failed to load friends for DID:", error);
+				this.error = `Failed to load friends for DID: ${error.message}`;
 			} finally {
 				this.loading = false;
 			}

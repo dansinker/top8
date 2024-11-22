@@ -1,4 +1,3 @@
-// Theme component registration
 document.addEventListener("alpine:init", () => {
 	Alpine.data("theme", () => ({
 		colorThemes: [],
@@ -7,11 +6,9 @@ document.addEventListener("alpine:init", () => {
 
 		async init() {
 			this.colorThemes = window.managers.themeManager.colorThemes;
-			// Set a default theme immediately
 			this.themeClass = window.managers.themeManager.getThemeClasses();
 			document.body.className = window.managers.themeManager.colorThemes[0];
 
-			// If we have a logged-in user, initialize their theme
 			const storedPerson = Alpine.store("person");
 			if (storedPerson?.bsky_handle) {
 				try {
@@ -21,6 +18,21 @@ document.addEventListener("alpine:init", () => {
 					console.error("Failed to initialize theme:", error);
 				}
 			}
+
+			// Handle theme changes based on route
+			this.$watch("$route.path", async (path) => {
+				if (path.startsWith("/profile/")) {
+					const did = path.split("/profile/")[1];
+					if (did) {
+						try {
+							await window.managers.themeManager.initialize();
+							this.themeClass = window.managers.themeManager.getThemeClasses();
+						} catch (error) {
+							console.error("Failed to initialize theme for profile:", error);
+						}
+					}
+				}
+			});
 		},
 
 		validateTheme(themeName) {

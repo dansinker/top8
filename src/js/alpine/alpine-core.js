@@ -1,9 +1,10 @@
-// Core Alpine.js initialization and store setup
 import { AuthManager } from "../auth";
 import { ProfileManager } from "../profile";
 import { PDSThemeManager } from "../themePDS";
 import { PostManager } from "../posts";
 import { Top8Manager } from "../top8";
+import Alpine from "alpinejs";
+import AlpineRouter from "@alpinejs/router";
 
 document.addEventListener("alpine:init", () => {
 	// Create instances of our managers
@@ -41,4 +42,23 @@ document.addEventListener("alpine:init", () => {
 		postsManager,
 		top8Manager,
 	});
+
+	// Initialize Alpine.js router
+	Alpine.plugin(AlpineRouter);
+
+	// Define routes and components for different views
+	Alpine.data("routes", () => ({
+		"/": {
+			component: "home",
+		},
+		"/profile": {
+			component: "profile",
+		},
+		"/profile/:did": {
+			component: "profile",
+		},
+		"/browse": {
+			component: "browse",
+		},
+	}));
 });

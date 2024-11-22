@@ -105,88 +105,55 @@ export class ProfileManager {
 		return formattedProfile;
 	}
 
-	// async fetchPosts(handle, limit = 12) {
-	//     try {
-	//         const response = await fetch(
-	//             `${CONFIG.API.PUBLIC_URL}${CONFIG.API.ENDPOINTS.GET_AUTHOR_FEED}?actor=${handle}&limit=${limit}`,
-	//             { headers: this.authManager.getAuthHeaders() },
-	//         );
+	async fetchProfileByDID(did) {
+		console.debug(`[ProfileManager] Fetching profile for DID: ${did}`);
 
-	//         if (!response.ok) throw new Error("Failed to fetch posts");
+		if (!did) {
+			console.error("[ProfileManager] No DID provided");
+			throw new Error("DID is required");
+		}
 
-	//         const data = await response.json();
-	//         return this.formatPosts(data.feed);
-	//     } catch (error) {
-	//         console.error("Posts fetch error:", error);
-	//         throw error;
-	//     }
-	// }
+		try {
+			const url = `${CONFIG.API.BASE_URL}${CONFIG.API.ENDPOINTS.GET_PROFILE}?actor=${encodeURIComponent(did)}`;
+			console.debug(`[ProfileManager] Making request to: ${url}`);
 
-	// formatPosts(feed) {
-	//     return feed
-	//         .filter(
-	//             (item) => !item.post.record.reply && !item.post.record.repost,
-	//         )
-	//         .map((item) => ({
-	//             text: item.post.record.text,
-	//             createdAt: new Date(
-	//                 item.post.record.createdAt,
-	//             ).toLocaleString(),
-	//             author: {
-	//                 name:
-	//                     item.post.author.displayName || item.post.author.handle,
-	//                 handle: item.post.author.handle,
-	//                 avatar: item.post.author.avatar,
-	//             },
-	//             // Add engagement metrics
-	//             replyCount: item.post.replyCount || 0,
-	//             repostCount: item.post.repostCount || 0,
-	//             likeCount: item.post.likeCount || 0,
-	//             // Add embed handling if present
-	//             embed: this.formatEmbed(item.post.embed),
-	//             // Add original URI for linking
-	//             uri: item.post.uri,
-	//             // Add cid for unique identification
-	//             cid: item.post.cid,
-	//         }));
-	// }
+			const headers = this.authManager.getAuthHeaders();
+			console.debug("[ProfileManager] Request headers:", headers);
 
-	// formatEmbed(embed) {
-	//     if (!embed) return null;
+			const response = await fetch(url, { headers });
+			console.debug(`[ProfileManager] Response status: ${response.status}`);
 
-	//     // Handle images
-	//     if (embed.images) {
-	//         return {
-	//             type: "images",
-	//             images: embed.images.map((img) => ({
-	//                 url: img.thumb || img.fullsize,
-	//                 alt: img.alt,
-	//             })),
-	//         };
-	//     }
+			if (!response.ok) {
+				const errorText = await response.text();
+				console.error(
+					`[ProfileManager] Failed to fetch profile. Status: ${response.status}, Error: ${errorText}`,
+				);
+				throw new Error(
+					`Failed to fetch profile: ${response.status} ${response.statusText}`,
+				);
+			}
 
-	//     // Handle external links
-	//     if (embed.external) {
-	//         return {
-	//             type: "external",
-	//             url: embed.external.uri,
-	//             title: embed.external.title,
-	//             description: embed.external.description,
-	//             thumb: embed.external.thumb,
-	//         };
-	//     }
+			const data = await response.json();
+			console.debug("[ProfileManager] Raw profile data:", data);
 
-	//     // Handle record embeds (quotes, etc)
-	//     if (embed.record) {
-	//         return {
-	//             type: "record",
-	//             record: {
-	//                 text: embed.record.value.text,
-	//                 author: embed.record.author,
-	//             },
-	//         };
-	//     }
+			if (!data || typeof data !== "object") {
+				console.error("[ProfileManager] Invalid profile data received");
+				throw new Error("Invalid profile data received");
+			}
 
-	//     return null;
-	// }
+			this.profile = this.formatProfileData(data);
+			console.debug("[ProfileManager] Formatted profile:", this.profile);
+
+			return this.profile;
+		} catch (error) {
+			console.error("[ProfileManager] Profile fetch error:", {
+				did,
+				error: error.message,
+				stack: error.stack,
+			});
+			throw new Error(
+				`Failed to fetch profile for ${did}: ${error.message}`,
+			);
+		}
+	}
 }

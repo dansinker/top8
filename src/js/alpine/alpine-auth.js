@@ -78,10 +78,14 @@ document.addEventListener("alpine:init", () => {
 				// Clear sensitive data
 				this.password = "";
 				this.username = "";
+
+				// Navigate to /profile after successful login
+				this.$router.push("/profile");
 			} catch (error) {
 				console.error("[Login] Error during login process:", error);
 				this.loginError = error.message || "Login failed";
 				this.password = "";
+				this.username = "";
 			} finally {
 				this.loading = false;
 			}

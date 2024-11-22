@@ -1,5 +1,5 @@
-// Import Alpine.js
 import Alpine from "alpinejs";
+import AlpineRouter from "@alpinejs/router";
 
 // First import config and core utilities
 import "./config";
@@ -35,4 +35,5 @@ import "./alpine/alpine-top8";
 
 // Initialize Alpine
 window.Alpine = Alpine;
+Alpine.plugin(AlpineRouter);
 Alpine.start();

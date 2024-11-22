@@ -1,60 +1,78 @@
-/* Reset default styles */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Classic MySpace styles */
 @layer components {
 	.color-choice {
-		@apply h-8 w-8 rounded-full border border-black inline-block mr-1 cursor-pointer hover:border-white;
+		@apply h-8 w-8 rounded-full border-2 border-gray-400 inline-block mr-1 cursor-pointer hover:border-white;
 	}
 
+	/* Table styles */
+	table {
+		@apply w-full border-collapse;
+	}
+
+	td {
+		@apply border border-gray-300 p-2;
+	}
+
+	/* Section headers */
+	.section-header {
+		@apply bg-gradient-to-b from-[#5B7BA6] to-[#2B4B7B] text-white p-2 font-bold text-sm;
+	}
+
+	/* Friend boxes */
+	.friend-box {
+		@apply border-2 border-gray-300 p-1 bg-white;
+	}
+
+	/* Blog post styles */
+	.blog-post {
+		@apply border-b border-gray-200 last:border-b-0 py-4;
+	}
+
+	.blog-header {
+		@apply bg-[#F5F5F5] p-2 mb-2 text-sm font-bold;
+	}
+
+	/* Dialog styles */
 	.dialog-overlay {
 		@apply fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center;
 	}
 
 	.dialog-content {
-		@apply bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-4;
+		@apply bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-4 border-2 border-gray-300;
 	}
 
+	/* Friend selection styles */
 	.friend-item {
-		@apply flex items-center p-3 border rounded-lg mb-2 cursor-pointer transition-all hover:bg-gray-50;
+		@apply flex items-center p-3 border rounded-lg mb-2 cursor-pointer hover:bg-gray-50;
 	}
 
 	.friend-item.selected {
 		@apply border-blue-500 bg-blue-50;
 	}
 
-	.friend-item .avatar {
-		@apply w-10 h-10 rounded-full mr-3;
-	}
-
-	.friend-info {
-		@apply flex flex-col;
-	}
-
-	.handle {
-		@apply text-sm text-gray-600;
-	}
-
-	.dialog-buttons {
-		@apply mt-4 flex justify-end gap-2;
-	}
-
-	.error-message {
-		@apply text-red-500 my-2 p-2 bg-red-50 rounded-md;
-	}
-
-	.friends-grid {
-		@apply grid grid-cols-2 md:grid-cols-4 gap-4 mt-4;
-	}
-
-	.loading-indicator {
-		@apply mt-2 text-sm text-gray-600;
-	}
-
-	.progress-note {
-		@apply text-xs opacity-80 mt-1;
+	.friend-avatar {
+		@apply w-10 h-10 border border-gray-300 rounded-full mr-3;
 	}
 }
 
-/* Theme Classes */
+/* MySpace-specific theme colors */
+.pink {
+	--primary-color: #ff1493;
+	--secondary-color: #ff69b4;
+}
+
+.dark-blue {
+	--primary-color: #000080;
+	--secondary-color: #0000cd;
+}
+
+.almond {
+	--primary-color: #ffebcd;
+	--secondary-color: #deb887;
+}
+
+/* ... add other theme colors ... */

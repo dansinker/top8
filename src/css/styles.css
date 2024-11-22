@@ -11,6 +11,8 @@
         --text: #000000;
         --link: #0000ff;
         --border: #d1d5db;
+        --logo-primary: #003399;
+        --logo-secondary: #1b3a6b;
     }
 }
 
@@ -23,6 +25,8 @@
     --text: #000000;
     --link: #c71585;
     --border: #ffb6c1;
+    --logo-primary: #ff1493;
+    --logo-secondary: #ff69b4;
     background-image: url(../images/390g.gif);
     background-repeat: repeat;
     background-position: center center;
@@ -36,6 +40,8 @@
     --text: #000000;
     --link: #0000ff;
     --border: #4169e1;
+    --logo-primary: #000080;
+    --logo-secondary: #0000cd;
     background-image: url("../images/4f.gif");
     background-repeat: repeat;
     background-position: center center;
@@ -49,6 +55,8 @@
     --text: #8b4513;
     --link: #a0522d;
     --border: #deb887;
+    --logo-primary: #efdecd;
+    --logo-secondary: #deb887;
     background-image: url("../images/169b.jpg");
     background-repeat: repeat;
     background-position: center center;
@@ -62,6 +70,8 @@
     --text: #999;
     --link: #dc143c;
     --border: #8b0000;
+    --logo-primary: #8b0000;
+    --logo-secondary: #800000;
     background-image: url("../images/206c.gif");
     background-repeat: repeat;
     background-position: center center;
@@ -75,6 +85,8 @@
     --text: #00ff00;
     --link: #00ff00;
     --border: #32cd32;
+    --logo-primary: #39ff14;
+    --logo-secondary: #00ff00;
     background-image: url("../images/215b.gif");
     background-repeat: repeat;
     background-position: center center;
@@ -88,6 +100,8 @@
     --text: #000000;
     --link: #ff4500;
     --border: #ff7f50;
+    --logo-primary: #ff4500;
+    --logo-secondary: #ff6347;
     background-image: url("../images/176z.gif");
     background-repeat: repeat;
     background-position: center center;
@@ -101,6 +115,8 @@
     --text: #4b0082;
     --link: #9370db;
     --border: #dda0dd;
+    --logo-primary: #e6e6fa;
+    --logo-secondary: #dda0dd;
     background-image: url("../images/76a.jpg");
     background-repeat: repeat;
     background-position: center center;
@@ -114,6 +130,8 @@
     --text: #e6e6fa;
     --link: #6a5acd;
     --border: #483d8b;
+    --logo-primary: #191970;
+    --logo-secondary: #000080;
     background-image: url("../images/1128n.gif");
     background-repeat: repeat;
     background-position: center center;
@@ -127,6 +145,8 @@
     --text: #db7093;
     --link: #ff69b4;
     --border: #ffb7c5;
+    --logo-primary: #ffb7c5;
+    --logo-secondary: #ffc0cb;
     background-image: url("../images/639d.jpg");
     background-repeat: repeat;
     background-position: center center;

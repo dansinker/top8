@@ -110,6 +110,12 @@ export class PDSThemeManager {
         if (!document.body.classList.contains("page-background")) {
             document.body.classList.add("page-background");
         }
+
+        // Update logo color
+        const logo = document.querySelector("img[alt='Top 8 Space']");
+        if (logo) {
+            logo.style.fill = getComputedStyle(document.documentElement).getPropertyValue('--logo-primary');
+        }
     }
 
     getThemeClasses() {

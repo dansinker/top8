@@ -42,8 +42,13 @@ document.addEventListener("alpine:init", () => {
 		},
 
 		async loginUser() {
+			console.debug("[Login] Starting login process", {
+				username: this.username,
+			});
+
 			if (!this.username || !this.password) {
 				this.loginError = "Please provide both username and password";
+				console.warn("[Login] Missing username or password");
 				return;
 			}
 
@@ -80,6 +85,7 @@ document.addEventListener("alpine:init", () => {
 				this.username = "";
 
 				// Navigate to /profile after successful login
+				console.debug("[Login] Login successful, navigating to /profile");
 				this.$router.push("/profile");
 			} catch (error) {
 				console.error("[Login] Error during login process:", error);
@@ -92,6 +98,8 @@ document.addEventListener("alpine:init", () => {
 		},
 
 		async logout() {
+			console.debug("[Logout] Starting logout process");
+
 			try {
 				await window.managers.authManager.clearTokens();
 				await StorageManager.clearAuthData();
@@ -113,6 +121,8 @@ document.addEventListener("alpine:init", () => {
 					themeComponent.themeClass =
 						window.managers.themeManager.getThemeClasses();
 				}
+
+				console.debug("[Logout] Logout successful");
 			} catch (error) {
 				console.error("[Logout] Error during logout:", error);
 				throw new Error(`Logout failed: ${error.message}`);

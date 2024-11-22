@@ -61,4 +61,6 @@ document.addEventListener("alpine:init", () => {
 			component: "browse",
 		},
 	}));
+
+	console.debug("[Router] Initialized with routes:", Alpine.data("routes"));
 });

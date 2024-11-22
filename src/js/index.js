@@ -36,4 +36,6 @@ import "./alpine/alpine-top8";
 // Initialize Alpine
 window.Alpine = Alpine;
 Alpine.plugin(AlpineRouter);
+console.debug("[Router] Alpine Router initialized");
 Alpine.start();
+console.debug("[Router] Alpine started");

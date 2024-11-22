@@ -156,4 +156,25 @@ export class ProfileManager {
 			);
 		}
 	}
+
+	async fetchProfileDataFromURL() {
+		console.debug("[ProfileManager] Fetching profile data from URL");
+
+		const urlParams = new URLSearchParams(window.location.search);
+		const did = urlParams.get("did");
+
+		if (!did) {
+			console.error("[ProfileManager] No DID found in URL");
+			throw new Error("DID is required in URL");
+		}
+
+		try {
+			const profile = await this.fetchProfileByDID(did);
+			console.debug("[ProfileManager] Profile data fetched from URL:", profile);
+			return profile;
+		} catch (error) {
+			console.error("[ProfileManager] Error fetching profile data from URL:", error);
+			throw error;
+		}
+	}
 }

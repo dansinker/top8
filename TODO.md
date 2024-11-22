@@ -1,30 +1,30 @@
 # TODO List for Top8.space
 
 ## Authentication
-- [ ] Implement login flow using Bluesky App Password.
+- [x] Implement login flow using Bluesky App Password.
 - [ ] Add guidance for creating a Bluesky App Password.
 - [ ] Encrypt session data before storing in Local Storage.
-- [ ] Implement logout functionality with session termination.
+- [x] Implement logout functionality with session termination.
 - [ ] Set up rate limiting for login attempts.
-- [ ] Create error messaging for authentication failures.
+- [x] Create error messaging for authentication failures.
 - [ ] Handle automatic session expiration after token timeout.
 
 ## Profile Management
-- [ ] Fetch and display profile data (Display name, Handle, Avatar, etc.).
+- [x] Fetch and display profile data (Display name, Handle, Avatar, etc.).
 - [ ] Implement editing for tagline, music links, theme preference, and Top 8 friends list.
 - [ ] Store custom profile fields (e.g., tagline, theme) in AT Protocol records.
 - [ ] Fetch other users' profiles by DID for public viewing.
 
 ## Top 8 Friends Management
-- [ ] Create friend selection interface with search functionality.
+- [x] Create friend selection interface with search functionality.
 - [ ] Implement drag-and-drop or arrow-based ordering for the list.
-- [ ] Save and update Top 8 list in AT Protocol record.
+- [x] Save and update Top 8 list in AT Protocol record.
 
 ## Theme System
-- [ ] Design and implement 12 predefined base colors.
+- [x] Design and implement 12 predefined base colors.
 - [ ] Develop automatic theme generation logic (complementary, contrast, accents).
-- [ ] Create CSS for theme styling.
-- [ ] Add theme selection UI.
+- [x] Create CSS for theme styling.
+- [x] Add theme selection UI.
 
 ## Music Integration
 - [ ] Add form fields for Spotify, Apple Music, and Amazon Music URLs.

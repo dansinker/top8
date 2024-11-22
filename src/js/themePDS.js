@@ -1,4 +1,7 @@
-class PDSThemeManager {
+import { PDSRecordManager } from "./pds";
+import { CONFIG } from "./config";
+
+export class PDSThemeManager {
     constructor(authManager) {
         if (!authManager) {
             throw new Error("[PDSThemeManager] AuthManager is required");
@@ -28,22 +31,15 @@ class PDSThemeManager {
             }
 
             // Attempt to fetch theme from PDS
-            console.debug("[PDSThemeManager] Fetching theme from PDS...");
             const record = await this.pds.getRecord(
                 CONFIG.THEME.RECORD_TYPE,
                 CONFIG.THEME.RECORD_KEY,
             );
 
-            console.debug(
-                "[PDSThemeManager] Retrieved PDS theme record:",
-                record,
-            );
-
             if (!record) {
                 console.debug(
-                    "[PDSThemeManager] No theme record found in PDS, creating default",
+                    "[PDSThemeManager] No theme record found, creating default",
                 );
-                // Create default theme record
                 await this.setTheme(this.colorThemes[0]);
                 return;
             }
@@ -51,7 +47,7 @@ class PDSThemeManager {
             // Validate theme value
             if (!record.theme || !this.colorThemes.includes(record.theme)) {
                 console.warn(
-                    "[PDSThemeManager] Invalid theme in PDS record:",
+                    "[PDSThemeManager] Invalid theme in record:",
                     record.theme,
                 );
                 await this.setTheme(this.colorThemes[0]);
@@ -59,23 +55,9 @@ class PDSThemeManager {
             }
 
             // Set the theme
-            console.debug(
-                "[PDSThemeManager] Setting theme from PDS:",
-                record.theme,
-            );
             await this.setTheme(record.theme);
-
-            console.debug("[PDSThemeManager] Theme initialization complete", {
-                currentTheme: this.currentTheme,
-                recordFound: !!record,
-                themeValue: record?.theme,
-            });
         } catch (error) {
-            console.error("[PDSThemeManager] Initialization error:", {
-                error: error.message,
-                stack: error.stack,
-            });
-            // Set default theme on error
+            console.error("[PDSThemeManager] Initialization error:", error);
             this.setThemeLocally(this.colorThemes[0]);
         }
     }
@@ -93,7 +75,7 @@ class PDSThemeManager {
                 throw new Error(`Invalid theme: ${normalizedTheme}`);
             }
 
-            // Set theme locally first
+            // Set theme locally first for immediate feedback
             this.setThemeLocally(normalizedTheme);
 
             // Prepare record for PDS
@@ -104,38 +86,43 @@ class PDSThemeManager {
             };
 
             // Save to PDS
-            console.debug("[PDSThemeManager] Saving theme to PDS:", record);
             await this.pds.putRecord(
                 CONFIG.THEME.RECORD_TYPE,
                 CONFIG.THEME.RECORD_KEY,
                 record,
             );
 
-            console.debug("[PDSThemeManager] Theme saved successfully");
             return this.getThemeClasses();
         } catch (error) {
-            console.error("[PDSThemeManager] Error setting theme:", {
-                error: error.message,
-                themeName,
-                currentState: this.currentTheme,
-            });
+            console.error("[PDSThemeManager] Error setting theme:", error);
             throw error;
         }
     }
 
     setThemeLocally(themeName) {
+        // Remove all existing theme classes
+        document.body.classList.remove(...this.colorThemes);
+        // Add new theme class
+        document.body.classList.add(themeName);
+        // Update current theme
         this.currentTheme = themeName;
-        document.body.className = themeName;
+        // Add page-background class if not present
+        if (!document.body.classList.contains("page-background")) {
+            document.body.classList.add("page-background");
+        }
     }
 
     getThemeClasses() {
-        return this.colorThemes.reduce(
-            (acc, theme) => ({
-                ...acc,
-                [theme]: theme === this.currentTheme,
-            }),
-            {},
-        );
+        return {
+            "page-background": true,
+            ...this.colorThemes.reduce(
+                (acc, theme) => ({
+                    ...acc,
+                    [theme]: theme === this.currentTheme,
+                }),
+                {},
+            ),
+        };
     }
 
     validateTheme(themeName) {
@@ -149,6 +136,8 @@ class PDSThemeManager {
         return {
             "color-choice": true,
             [themeName]: true,
+            "ring-2": themeName === this.currentTheme,
+            "ring-white": themeName === this.currentTheme,
         };
     }
 }

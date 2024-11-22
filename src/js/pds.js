@@ -1,4 +1,6 @@
-class PDSRecordManager {
+import { CONFIG } from "./config";
+
+export class PDSRecordManager {
     constructor(authManager) {
         if (!authManager) {
             throw new Error("[PDSRecordManager] AuthManager is required");
@@ -7,24 +9,18 @@ class PDSRecordManager {
         this.baseUrl = CONFIG.API.BASE_URL;
     }
 
-    // Helper method to handle auth headers with refresh
     async getAuthHeadersWithRefresh() {
         try {
-            // First try getting regular headers
             const headers = this.authManager.getAuthHeaders();
             return headers;
         } catch (error) {
             console.debug(
                 "[PDSRecordManager] Initial auth headers failed, attempting refresh",
             );
-
-            // Attempt to refresh the session
             const refreshResult = await this.authManager.refreshSession();
             if (!refreshResult) {
                 throw new Error("Failed to refresh authentication");
             }
-
-            // Try getting headers again after refresh
             return this.authManager.getAuthHeaders();
         }
     }
@@ -36,20 +32,17 @@ class PDSRecordManager {
             recordSize: JSON.stringify(record).length,
         });
 
-        // Validate params first
         if (!collection || !rkey || !record) {
             throw new Error("Missing required parameters");
         }
 
         try {
-            // Get auth headers with potential refresh
             const headers = await this.getAuthHeadersWithRefresh();
 
             if (!headers?.Authorization) {
                 throw new Error("No valid authorization header");
             }
 
-            // Prepare request body
             const requestBody = {
                 repo: this.authManager.did,
                 collection,
@@ -84,6 +77,52 @@ class PDSRecordManager {
         }
     }
 
+    async deleteRecord(collection, rkey) {
+        console.debug("[PDSRecordManager] Attempting to delete record", {
+            collection,
+            rkey,
+        });
+
+        if (!collection || !rkey) {
+            throw new Error("Missing required parameters for delete");
+        }
+
+        try {
+            const headers = await this.getAuthHeadersWithRefresh();
+
+            if (!headers?.Authorization) {
+                throw new Error("No valid authorization header");
+            }
+
+            const requestBody = {
+                repo: this.authManager.did,
+                collection,
+                rkey,
+            };
+
+            const response = await fetch(
+                `${this.baseUrl}/com.atproto.repo.deleteRecord`,
+                {
+                    method: "POST",
+                    headers: headers,
+                    body: JSON.stringify(requestBody),
+                },
+            );
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(
+                    `Delete failed: ${response.status} ${errorText}`,
+                );
+            }
+
+            return true;
+        } catch (error) {
+            console.error("[PDSRecordManager] Delete record error:", error);
+            throw error;
+        }
+    }
+
     async getRecord(collection, rkey) {
         console.debug("[PDSRecordManager] Attempting to get record", {
             collection,
@@ -95,7 +134,6 @@ class PDSRecordManager {
         }
 
         try {
-            // Get auth headers with potential refresh
             const headers = await this.getAuthHeadersWithRefresh();
 
             if (!headers?.Authorization) {

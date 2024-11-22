@@ -1,0 +1,343 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Top 8 Friends</title>
+        <link rel="stylesheet" href="css/styles.css" />
+        <script type="module" src="js/index.js"></script>
+    </head>
+    <body x-data="theme()" :class="themeClass" class="page-background">
+        <!-- Fixed width container -->
+        <div class="max-w-[900px] mx-auto bg-white themed-border min-h-screen">
+            <!-- Logo Area -->
+            <div class="section-header p-4">
+                <img
+                    src="images/logo.svg"
+                    alt="Top 8 Space"
+                    class="h-12 mx-auto"
+                />
+            </div>
+
+            <!-- Main Content Area -->
+            <div
+                id="wholething"
+                x-data="appState"
+                x-init="init"
+                class="flex gap-4 p-4"
+            >
+                <!-- Left Column -->
+                <div class="w-[300px] space-y-4">
+                    <!-- Login Form -->
+                    <div x-show="!person.name" class="themed-border rounded">
+                        <div class="section-header">Log in with Bluesky</div>
+                        <div class="p-4">
+                            <form @submit.prevent="loginUser" class="space-y-4">
+                                <div class="space-y-2">
+                                    <label class="block text-sm themed-text"
+                                        >Username</label
+                                    >
+                                    <input
+                                        type="text"
+                                        x-model="username"
+                                        required
+                                        class="w-full px-3 py-2 themed-border rounded focus:ring-1"
+                                    />
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="block text-sm themed-text"
+                                        >Password</label
+                                    >
+                                    <input
+                                        type="password"
+                                        x-model="password"
+                                        required
+                                        class="w-full px-3 py-2 themed-border rounded focus:ring-1"
+                                    />
+                                </div>
+                                <div
+                                    x-show="loginError"
+                                    x-text="loginError"
+                                    class="text-red-600 bg-red-50 p-2 rounded"
+                                ></div>
+                                <button
+                                    type="submit"
+                                    :disabled="loading"
+                                    class="primary-button w-full"
+                                >
+                                    <span
+                                        x-text="loading ? 'Logging in...' : 'Log in'"
+                                    ></span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Profile Box -->
+                    <div x-show="person.name" class="themed-border rounded">
+                        <div
+                            class="section-header flex justify-between items-center"
+                        >
+                            <span x-text="person.name + '\'s Profile'"></span>
+                        </div>
+                        <div class="p-4 space-y-4">
+                            <img
+                                :src="person.avatar"
+                                :alt="person.name"
+                                class="w-full themed-border p-1"
+                            />
+
+                            <!-- Classic MySpace table layout -->
+                            <table class="w-full text-sm themed-border">
+                                <tr>
+                                    <td
+                                        class="bg-gray-100 p-2 w-24 themed-text"
+                                    >
+                                        Name:
+                                    </td>
+                                    <td
+                                        class="p-2 themed-text"
+                                        x-text="person.name"
+                                    ></td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-gray-100 p-2 themed-text">
+                                        Handle:
+                                    </td>
+                                    <td class="p-2">
+                                        <a
+                                            :href="person.bsky_url"
+                                            target="_blank"
+                                            class="themed-link"
+                                            x-text="person.bsky_handle"
+                                        ></a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="bg-gray-100 p-2 themed-text">
+                                        About:
+                                    </td>
+                                    <td
+                                        class="p-2 themed-text"
+                                        x-html="person.note"
+                                    ></td>
+                                </tr>
+                            </table>
+
+                            <button
+                                @click="logout"
+                                class="w-full bg-red-600 text-white py-2 rounded hover:bg-red-700"
+                            >
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Theme Selector -->
+                    <div x-data="theme()" class="themed-border rounded">
+                        <div class="section-header">Customize Profile</div>
+                        <div class="p-4">
+                            <div class="flex flex-wrap gap-2">
+                                <template x-for="ct in colorThemes" :key="ct">
+                                    <span
+                                        :class="choiceClass(ct)"
+                                        @click="changeTheme(ct)"
+                                        :title="ct"
+                                    ></span>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="flex-1 space-y-4">
+                    <!-- Top 8 Section -->
+                    <div
+                        x-data="top8"
+                        x-init="init"
+                        class="themed-border rounded"
+                    >
+                        <div
+                            class="section-header flex justify-between items-center"
+                        >
+                            <span
+                                >My Top <span x-text="friends.length"></span
+                            ></span>
+                            <button
+                                @click="showDialog = true; searchQuery = ''; searchResults = []"
+                                class="text-sm px-3 py-1 primary-button"
+                            >
+                                Edit Top 8
+                            </button>
+                        </div>
+
+                        <!-- Friends Grid -->
+                        <div class="p-4 grid grid-cols-4 gap-4">
+                            <template
+                                x-for="friend in friends"
+                                :key="friend.uniqueId"
+                            >
+                                <div class="text-center">
+                                    <img
+                                        :src="friend.avatar || '/api/placeholder/120/120'"
+                                        :alt="friend.displayName"
+                                        class="w-full themed-border p-1"
+                                    />
+                                    <div
+                                        x-text="friend.displayName"
+                                        class="font-bold mt-2 text-sm themed-text"
+                                    ></div>
+                                    <a
+                                        :href="'https://bsky.app/profile/' + friend.handle"
+                                        target="_blank"
+                                        class="themed-link text-sm"
+                                        x-text="friend.handle"
+                                    ></a>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Friend Selection Dialog -->
+                        <div
+                            x-show="showDialog"
+                            class="dialog-overlay"
+                            @click="showDialog = false"
+                        >
+                            <div class="dialog-content" @click.stop>
+                                <div class="section-header mb-4">
+                                    Edit Top 8 Friends
+                                </div>
+                                <div class="space-y-4">
+                                    <div class="flex gap-2">
+                                        <input
+                                            type="text"
+                                            x-model="searchQuery"
+                                            @input="searchFriends"
+                                            placeholder="Search friends..."
+                                            class="flex-1 px-3 py-2 themed-border rounded"
+                                        />
+                                    </div>
+                                    <div class="max-h-96 overflow-y-auto">
+                                        <template
+                                            x-for="friend in searchResults"
+                                            :key="friend.uniqueId"
+                                        >
+                                            <div
+                                                class="friend-item"
+                                                :class="{ 'selected': isFriendSelected(friend) }"
+                                                @click="toggleFriend(friend)"
+                                            >
+                                                <img
+                                                    :src="friend.avatar || '/api/placeholder/40/40'"
+                                                    :alt="friend.displayName"
+                                                    class="friend-avatar"
+                                                />
+                                                <div>
+                                                    <div
+                                                        x-text="friend.displayName"
+                                                        class="font-bold themed-text"
+                                                    ></div>
+                                                    <div
+                                                        x-text="friend.handle"
+                                                        class="text-sm text-gray-500"
+                                                    ></div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                    <div
+                                        x-show="error"
+                                        x-text="error"
+                                        class="text-red-600"
+                                    ></div>
+                                    <div class="flex justify-end gap-2">
+                                        <button
+                                            @click="showDialog = false"
+                                            class="px-4 py-2 border rounded hover:bg-gray-50"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            @click="saveFriends"
+                                            class="primary-button"
+                                            :disabled="loading"
+                                        >
+                                            Save Changes
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Posts Section -->
+                    <div
+                        x-data="posts"
+                        x-show="person.bsky_handle"
+                        class="themed-border rounded"
+                    >
+                        <div class="section-header">My Latest Posts</div>
+                        <div class="p-4">
+                            <!-- Loading State -->
+                            <div x-show="loading" class="text-center py-4">
+                                <div
+                                    class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"
+                                ></div>
+                                <p class="mt-2 text-gray-600">
+                                    Loading posts...
+                                </p>
+                            </div>
+
+                            <!-- Error State -->
+                            <div
+                                x-show="error"
+                                x-text="error"
+                                class="text-red-600 bg-red-50 p-4 rounded"
+                            ></div>
+
+                            <!-- Posts -->
+                            <template x-for="blog in blogs" :key="blog.uri">
+                                <div class="blog-post">
+                                    <div class="blog-header">
+                                        <span
+                                            x-text="new Date(blog.createdAt).toLocaleString()"
+                                            class="font-bold"
+                                        ></span>
+                                    </div>
+                                    <p
+                                        x-html="blog.text"
+                                        class="mb-2 text-sm themed-text"
+                                    ></p>
+                                    <div class="text-xs text-gray-600">
+                                        <a
+                                            :href="blog.author.url"
+                                            target="_blank"
+                                            class="themed-link"
+                                        >
+                                            <span
+                                                x-text="blog.author.name"
+                                            ></span>
+                                            (@<span
+                                                x-text="blog.author.handle"
+                                            ></span
+                                            >)
+                                        </a>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <!-- No Posts State -->
+                            <div
+                                x-show="!loading && !error && blogs.length === 0"
+                                class="text-center py-8 text-gray-500"
+                            >
+                                No posts found
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

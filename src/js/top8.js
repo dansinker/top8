@@ -1,164 +1,167 @@
-class Top8Manager {
-	constructor(authManager) {
-		if (!authManager) {
-			throw new Error("[Top8Manager] AuthManager is required");
-		}
-		this.pds = new PDSRecordManager(authManager);
+import { PDSRecordManager } from "./pds";
+import { CONFIG } from "./config";
 
-		// Use config values
-		this.recordType = CONFIG.TOP8.RECORD_TYPE;
-		this.recordKey = CONFIG.TOP8.RECORD_KEY;
+export class Top8Manager {
+  constructor(authManager) {
+    if (!authManager) {
+      throw new Error("[Top8Manager] AuthManager is required");
+    }
+    this.pds = new PDSRecordManager(authManager);
 
-		// Add cache for follows
-		this.followsCache = null;
-		this.lastCacheUpdate = null;
-		this.cacheExpiration = CONFIG.TOP8.CACHE_DURATION;
-	}
+    // Use config values
+    this.recordType = CONFIG.TOP8.RECORD_TYPE;
+    this.recordKey = CONFIG.TOP8.RECORD_KEY;
 
-	async initialize() {
-		console.debug("[Top8Manager] Starting initialization...");
-		try {
-			const record = await this.pds.getRecord(this.recordType, this.recordKey);
-			// Add unique identifiers to each friend
-			const friends = record?.items || [];
-			return friends.map((friend, index) => ({
-				...friend,
-				uniqueId: `${friend.did}-${index}`,
-				position: index,
-			}));
-		} catch (error) {
-			console.error("[Top8Manager] Initialization error:", error);
-			return [];
-		}
-	}
+    // Add cache for follows
+    this.followsCache = null;
+    this.lastCacheUpdate = null;
+    this.cacheExpiration = CONFIG.TOP8.CACHE_DURATION;
+  }
 
-	async loadAllFollows() {
-		console.debug("[Top8Manager] Loading all follows...");
-		const follows = [];
-		let cursor = null;
+  async initialize() {
+    console.debug("[Top8Manager] Starting initialization...");
+    try {
+      const record = await this.pds.getRecord(this.recordType, this.recordKey);
+      // Add unique identifiers to each friend
+      const friends = record?.items || [];
+      return friends.map((friend, index) => ({
+        ...friend,
+        uniqueId: `${friend.did}-${index}`,
+        position: index,
+      }));
+    } catch (error) {
+      console.error("[Top8Manager] Initialization error:", error);
+      return [];
+    }
+  }
 
-		try {
-			do {
-				const url = new URL(
-					`${CONFIG.API.PUBLIC_URL}/app.bsky.graph.getFollows`,
-				);
-				url.searchParams.append("actor", this.pds.authManager.did);
-				url.searchParams.append("limit", "100");
-				if (cursor) {
-					url.searchParams.append("cursor", cursor);
-				}
+  async loadAllFollows() {
+    console.debug("[Top8Manager] Loading all follows...");
+    const follows = [];
+    let cursor = null;
 
-				const response = await fetch(url);
-				if (!response.ok) {
-					throw new Error(`HTTP error! status: ${response.status}`);
-				}
+    try {
+      do {
+        const url = new URL(
+          `${CONFIG.API.PUBLIC_URL}/app.bsky.graph.getFollows`,
+        );
+        url.searchParams.append("actor", this.pds.authManager.did);
+        url.searchParams.append("limit", "100");
+        if (cursor) {
+          url.searchParams.append("cursor", cursor);
+        }
 
-				const data = await response.json();
-				follows.push(...(data.follows || []));
-				cursor = data.cursor;
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-				console.debug(
-					`[Top8Manager] Loaded ${follows.length} follows so far...`,
-				);
-			} while (cursor);
+        const data = await response.json();
+        follows.push(...(data.follows || []));
+        cursor = data.cursor;
 
-			// Format follows for consistent structure
-			this.followsCache = follows.map((follow) => ({
-				did: follow.did,
-				handle: follow.handle,
-				displayName: follow.displayName || follow.handle,
-				avatar: follow.avatar,
-			}));
+        console.debug(
+          `[Top8Manager] Loaded ${follows.length} follows so far...`,
+        );
+      } while (cursor);
 
-			this.lastCacheUpdate = Date.now();
-			console.debug(
-				`[Top8Manager] Cached ${this.followsCache.length} total follows`,
-			);
+      // Format follows for consistent structure
+      this.followsCache = follows.map((follow) => ({
+        did: follow.did,
+        handle: follow.handle,
+        displayName: follow.displayName || follow.handle,
+        avatar: follow.avatar,
+      }));
 
-			return this.followsCache;
-		} catch (error) {
-			console.error("[Top8Manager] Error loading all follows:", error);
-			throw error;
-		}
-	}
+      this.lastCacheUpdate = Date.now();
+      console.debug(
+        `[Top8Manager] Cached ${this.followsCache.length} total follows`,
+      );
 
-	isCacheValid() {
-		return (
-			this.followsCache &&
-			this.lastCacheUpdate &&
-			Date.now() - this.lastCacheUpdate < this.cacheExpiration
-		);
-	}
+      return this.followsCache;
+    } catch (error) {
+      console.error("[Top8Manager] Error loading all follows:", error);
+      throw error;
+    }
+  }
 
-	async searchFollows(query) {
-		console.debug("[Top8Manager] Searching follows:", query);
+  isCacheValid() {
+    return (
+      this.followsCache &&
+      this.lastCacheUpdate &&
+      Date.now() - this.lastCacheUpdate < this.cacheExpiration
+    );
+  }
 
-		try {
-			if (!this.isCacheValid()) {
-				await this.loadAllFollows();
-			}
+  async searchFollows(query) {
+    console.debug("[Top8Manager] Searching follows:", query);
 
-			const searchQuery = query.toLowerCase();
+    try {
+      if (!this.isCacheValid()) {
+        await this.loadAllFollows();
+      }
 
-			// Add unique IDs to search results
-			const results = this.followsCache
-				.filter(
-					(follow) =>
-						follow.handle.toLowerCase().includes(searchQuery) ||
-						(follow.displayName &&
-							follow.displayName.toLowerCase().includes(searchQuery)),
-				)
-				.map((follow, index) => ({
-					...follow,
-					uniqueId: `${follow.did}-${Date.now()}-${index}`,
-				}));
+      const searchQuery = query.toLowerCase();
 
-			console.debug(
-				`[Top8Manager] Found ${results.length} matches for "${query}"`,
-			);
-			return results;
-		} catch (error) {
-			console.error("[Top8Manager] Error searching follows:", error);
-			throw error;
-		}
-	}
+      // Add unique IDs to search results
+      const results = this.followsCache
+        .filter(
+          (follow) =>
+            follow.handle.toLowerCase().includes(searchQuery) ||
+            (follow.displayName &&
+              follow.displayName.toLowerCase().includes(searchQuery)),
+        )
+        .map((follow, index) => ({
+          ...follow,
+          uniqueId: `${follow.did}-${Date.now()}-${index}`,
+        }));
 
-	async saveFriends(friends) {
-		console.debug("[Top8Manager] Saving friends:", friends);
+      console.debug(
+        `[Top8Manager] Found ${results.length} matches for "${query}"`,
+      );
+      return results;
+    } catch (error) {
+      console.error("[Top8Manager] Error searching follows:", error);
+      throw error;
+    }
+  }
 
-		if (!Array.isArray(friends) || friends.length > CONFIG.TOP8.MAX_FRIENDS) {
-			throw new Error(
-				`Invalid friends list - maximum ${CONFIG.TOP8.MAX_FRIENDS} friends allowed`,
-			);
-		}
+  async saveFriends(friends) {
+    console.debug("[Top8Manager] Saving friends:", friends);
 
-		try {
-			const record = {
-				purpose: CONFIG.TOP8.LIST_PURPOSE,
-				name: "My Top 8 Friends",
-				description: "My closest friends on Bluesky",
-				items: friends.map((friend, index) => ({
-					subject: friend.did,
-					handle: friend.handle,
-					displayName: friend.displayName,
-					avatar: friend.avatar,
-					position: index,
-					uniqueId: friend.uniqueId || `${friend.did}-${Date.now()}-${index}`,
-				})),
-				createdAt: new Date().toISOString(),
-				$type: this.recordType,
-			};
+    if (!Array.isArray(friends) || friends.length > CONFIG.TOP8.MAX_FRIENDS) {
+      throw new Error(
+        `Invalid friends list - maximum ${CONFIG.TOP8.MAX_FRIENDS} friends allowed`,
+      );
+    }
 
-			await this.pds.putRecord(this.recordType, this.recordKey, record);
-			return true;
-		} catch (error) {
-			console.error("[Top8Manager] Error saving friends:", error);
-			throw error;
-		}
-	}
+    try {
+      const record = {
+        purpose: CONFIG.TOP8.LIST_PURPOSE,
+        name: "My Top 8 Friends",
+        description: "My closest friends on Bluesky",
+        items: friends.map((friend, index) => ({
+          subject: friend.did,
+          handle: friend.handle,
+          displayName: friend.displayName,
+          avatar: friend.avatar,
+          position: index,
+          uniqueId: friend.uniqueId || `${friend.did}-${Date.now()}-${index}`,
+        })),
+        createdAt: new Date().toISOString(),
+        $type: this.recordType,
+      };
 
-	clearCache() {
-		this.followsCache = null;
-		this.lastCacheUpdate = null;
-	}
+      await this.pds.putRecord(this.recordType, this.recordKey, record);
+      return true;
+    } catch (error) {
+      console.error("[Top8Manager] Error saving friends:", error);
+      throw error;
+    }
+  }
+
+  clearCache() {
+    this.followsCache = null;
+    this.lastCacheUpdate = null;
+  }
 }

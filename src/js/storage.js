@@ -1,146 +1,148 @@
-class StorageManager {
-	static saveAuthData(authData, profileData) {
-		console.debug("[StorageManager] Attempting to save auth data...", {
-			hasAuthData: !!authData,
-			hasProfileData: !!profileData,
-		});
+import { CONFIG } from "./config";
 
-		// Validate required inputs
-		if (!authData || !profileData) {
-			console.error("[StorageManager] Missing required auth or profile data");
-			throw new Error("Missing required auth or profile data");
-		}
+export class StorageManager {
+  static saveAuthData(authData, profileData) {
+    console.debug("[StorageManager] Attempting to save auth data...", {
+      hasAuthData: !!authData,
+      hasProfileData: !!profileData,
+    });
 
-		// Validate required auth properties
-		const requiredAuthProps = ["accessJwt", "refreshJwt"];
-		const missingAuthProps = requiredAuthProps.filter(
-			(prop) => !authData[prop],
-		);
-		if (missingAuthProps.length) {
-			console.error(
-				"[StorageManager] Missing required auth properties:",
-				missingAuthProps,
-			);
-			throw new Error(
-				`Missing required auth properties: ${missingAuthProps.join(", ")}`,
-			);
-		}
+    // Validate required inputs
+    if (!authData || !profileData) {
+      console.error("[StorageManager] Missing required auth or profile data");
+      throw new Error("Missing required auth or profile data");
+    }
 
-		try {
-			// Prepare storage data
-			const storageData = {
-				accessJwt: authData.accessJwt,
-				refreshJwt: authData.refreshJwt,
-				handle: profileData.bsky_handle,
-				profile: profileData,
-				lastUpdated: new Date().toISOString(),
-			};
+    // Validate required auth properties
+    const requiredAuthProps = ["accessJwt", "refreshJwt"];
+    const missingAuthProps = requiredAuthProps.filter(
+      (prop) => !authData[prop],
+    );
+    if (missingAuthProps.length) {
+      console.error(
+        "[StorageManager] Missing required auth properties:",
+        missingAuthProps,
+      );
+      throw new Error(
+        `Missing required auth properties: ${missingAuthProps.join(", ")}`,
+      );
+    }
 
-			console.debug("[StorageManager] Saving auth data to storage...", {
-				handle: storageData.handle,
-				lastUpdated: storageData.lastUpdated,
-			});
+    try {
+      // Prepare storage data
+      const storageData = {
+        accessJwt: authData.accessJwt,
+        refreshJwt: authData.refreshJwt,
+        handle: profileData.bsky_handle,
+        profile: profileData,
+        lastUpdated: new Date().toISOString(),
+      };
 
-			// Attempt to store data
-			localStorage.setItem(
-				CONFIG.STORAGE_KEYS.AUTH,
-				JSON.stringify(storageData),
-			);
+      console.debug("[StorageManager] Saving auth data to storage...", {
+        handle: storageData.handle,
+        lastUpdated: storageData.lastUpdated,
+      });
 
-			console.debug("[StorageManager] Auth data saved successfully");
-		} catch (error) {
-			console.error("[StorageManager] Failed to save auth data:", error);
-			throw new Error("Failed to save authentication data to storage");
-		}
-	}
+      // Attempt to store data
+      localStorage.setItem(
+        CONFIG.STORAGE_KEYS.AUTH,
+        JSON.stringify(storageData),
+      );
 
-	static getStoredAuthData() {
-		console.debug(
-			"[StorageManager] Attempting to retrieve stored auth data...",
-		);
+      console.debug("[StorageManager] Auth data saved successfully");
+    } catch (error) {
+      console.error("[StorageManager] Failed to save auth data:", error);
+      throw new Error("Failed to save authentication data to storage");
+    }
+  }
 
-		try {
-			// Attempt to get data from storage
-			const rawData = localStorage.getItem(CONFIG.STORAGE_KEYS.AUTH);
+  static getStoredAuthData() {
+    console.debug(
+      "[StorageManager] Attempting to retrieve stored auth data...",
+    );
 
-			console.debug("[StorageManager] Raw auth data retrieved:", {
-				exists: !!rawData,
-			});
+    try {
+      // Attempt to get data from storage
+      const rawData = localStorage.getItem(CONFIG.STORAGE_KEYS.AUTH);
 
-			if (!rawData) {
-				console.debug("[StorageManager] No stored auth data found");
-				return null;
-			}
+      console.debug("[StorageManager] Raw auth data retrieved:", {
+        exists: !!rawData,
+      });
 
-			// Attempt to parse the data
-			const parsedData = JSON.parse(rawData);
+      if (!rawData) {
+        console.debug("[StorageManager] No stored auth data found");
+        return null;
+      }
 
-			// Validate required fields
-			const requiredFields = [
-				"accessJwt",
-				"refreshJwt",
-				"handle",
-				"profile",
-				"lastUpdated",
-			];
-			const missingFields = requiredFields.filter(
-				(field) => !parsedData[field],
-			);
+      // Attempt to parse the data
+      const parsedData = JSON.parse(rawData);
 
-			if (missingFields.length) {
-				console.warn(
-					"[StorageManager] Stored auth data is missing required fields:",
-					missingFields,
-				);
-				return null;
-			}
+      // Validate required fields
+      const requiredFields = [
+        "accessJwt",
+        "refreshJwt",
+        "handle",
+        "profile",
+        "lastUpdated",
+      ];
+      const missingFields = requiredFields.filter(
+        (field) => !parsedData[field],
+      );
 
-			console.debug(
-				"[StorageManager] Successfully retrieved and validated auth data",
-				{
-					handle: parsedData.handle,
-					lastUpdated: parsedData.lastUpdated,
-				},
-			);
+      if (missingFields.length) {
+        console.warn(
+          "[StorageManager] Stored auth data is missing required fields:",
+          missingFields,
+        );
+        return null;
+      }
 
-			return parsedData;
-		} catch (error) {
-			console.error(
-				"[StorageManager] Error retrieving stored auth data:",
-				error,
-			);
-			return null;
-		}
-	}
+      console.debug(
+        "[StorageManager] Successfully retrieved and validated auth data",
+        {
+          handle: parsedData.handle,
+          lastUpdated: parsedData.lastUpdated,
+        },
+      );
 
-	static clearAuthData() {
-		console.debug("[StorageManager] Attempting to clear auth data...");
+      return parsedData;
+    } catch (error) {
+      console.error(
+        "[StorageManager] Error retrieving stored auth data:",
+        error,
+      );
+      return null;
+    }
+  }
 
-		try {
-			// Check if auth data exists before clearing
-			const existingData = localStorage.getItem(CONFIG.STORAGE_KEYS.AUTH);
+  static clearAuthData() {
+    console.debug("[StorageManager] Attempting to clear auth data...");
 
-			console.debug("[StorageManager] Current auth data state:", {
-				exists: !!existingData,
-				storageKey: CONFIG.STORAGE_KEYS.AUTH,
-			});
+    try {
+      // Check if auth data exists before clearing
+      const existingData = localStorage.getItem(CONFIG.STORAGE_KEYS.AUTH);
 
-			// Attempt to remove the data
-			localStorage.removeItem(CONFIG.STORAGE_KEYS.AUTH);
+      console.debug("[StorageManager] Current auth data state:", {
+        exists: !!existingData,
+        storageKey: CONFIG.STORAGE_KEYS.AUTH,
+      });
 
-			// Verify removal was successful
-			const remainingData = localStorage.getItem(CONFIG.STORAGE_KEYS.AUTH);
-			if (remainingData) {
-				console.error(
-					"[StorageManager] Failed to clear auth data - data still exists",
-				);
-				throw new Error("Failed to clear authentication data from storage");
-			}
+      // Attempt to remove the data
+      localStorage.removeItem(CONFIG.STORAGE_KEYS.AUTH);
 
-			console.debug("[StorageManager] Auth data cleared successfully");
-		} catch (error) {
-			console.error("[StorageManager] Error clearing auth data:", error);
-			throw new Error("Failed to clear authentication data from storage");
-		}
-	}
+      // Verify removal was successful
+      const remainingData = localStorage.getItem(CONFIG.STORAGE_KEYS.AUTH);
+      if (remainingData) {
+        console.error(
+          "[StorageManager] Failed to clear auth data - data still exists",
+        );
+        throw new Error("Failed to clear authentication data from storage");
+      }
+
+      console.debug("[StorageManager] Auth data cleared successfully");
+    } catch (error) {
+      console.error("[StorageManager] Error clearing auth data:", error);
+      throw new Error("Failed to clear authentication data from storage");
+    }
+  }
 }

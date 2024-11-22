@@ -1,190 +1,192 @@
-class ProfileManager {
-	constructor(authManager) {
-		this.authManager = authManager;
-		this.profile = null;
-	}
+import { CONFIG } from "./config";
 
-	async fetchProfile(handle) {
-		console.debug(`[ProfileManager] Fetching profile for handle: ${handle}`);
+export class ProfileManager {
+  constructor(authManager) {
+    this.authManager = authManager;
+    this.profile = null;
+  }
 
-		if (!handle) {
-			console.error("[ProfileManager] No handle provided");
-			throw new Error("Handle is required");
-		}
+  async fetchProfile(handle) {
+    console.debug(`[ProfileManager] Fetching profile for handle: ${handle}`);
 
-		try {
-			const url = `${CONFIG.API.BASE_URL}${CONFIG.API.ENDPOINTS.GET_PROFILE}?actor=${encodeURIComponent(handle)}`;
-			console.debug(`[ProfileManager] Making request to: ${url}`);
+    if (!handle) {
+      console.error("[ProfileManager] No handle provided");
+      throw new Error("Handle is required");
+    }
 
-			const headers = this.authManager.getAuthHeaders();
-			console.debug("[ProfileManager] Request headers:", headers);
+    try {
+      const url = `${CONFIG.API.BASE_URL}${CONFIG.API.ENDPOINTS.GET_PROFILE}?actor=${encodeURIComponent(handle)}`;
+      console.debug(`[ProfileManager] Making request to: ${url}`);
 
-			const response = await fetch(url, { headers });
-			console.debug(`[ProfileManager] Response status: ${response.status}`);
+      const headers = this.authManager.getAuthHeaders();
+      console.debug("[ProfileManager] Request headers:", headers);
 
-			if (!response.ok) {
-				const errorText = await response.text();
-				console.error(
-					`[ProfileManager] Failed to fetch profile. Status: ${response.status}, Error: ${errorText}`,
-				);
-				throw new Error(
-					`Failed to fetch profile: ${response.status} ${response.statusText}`,
-				);
-			}
+      const response = await fetch(url, { headers });
+      console.debug(`[ProfileManager] Response status: ${response.status}`);
 
-			const data = await response.json();
-			console.debug("[ProfileManager] Raw profile data:", data);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(
+          `[ProfileManager] Failed to fetch profile. Status: ${response.status}, Error: ${errorText}`,
+        );
+        throw new Error(
+          `Failed to fetch profile: ${response.status} ${response.statusText}`,
+        );
+      }
 
-			if (!data || typeof data !== "object") {
-				console.error("[ProfileManager] Invalid profile data received");
-				throw new Error("Invalid profile data received");
-			}
+      const data = await response.json();
+      console.debug("[ProfileManager] Raw profile data:", data);
 
-			this.profile = this.formatProfileData(data);
-			console.debug("[ProfileManager] Formatted profile:", this.profile);
+      if (!data || typeof data !== "object") {
+        console.error("[ProfileManager] Invalid profile data received");
+        throw new Error("Invalid profile data received");
+      }
 
-			return this.profile;
-		} catch (error) {
-			console.error("[ProfileManager] Profile fetch error:", {
-				handle,
-				error: error.message,
-				stack: error.stack,
-			});
-			throw new Error(
-				`Failed to fetch profile for ${handle}: ${error.message}`,
-			);
-		}
-	}
+      this.profile = this.formatProfileData(data);
+      console.debug("[ProfileManager] Formatted profile:", this.profile);
 
-	formatProfileData(data) {
-		console.debug("[ProfileManager] Formatting profile data:", data);
+      return this.profile;
+    } catch (error) {
+      console.error("[ProfileManager] Profile fetch error:", {
+        handle,
+        error: error.message,
+        stack: error.stack,
+      });
+      throw new Error(
+        `Failed to fetch profile for ${handle}: ${error.message}`,
+      );
+    }
+  }
 
-		// Validate input data
-		if (!data || typeof data !== "object") {
-			console.error("[ProfileManager] Invalid data object received");
-			throw new Error("Invalid profile data object");
-		}
+  formatProfileData(data) {
+    console.debug("[ProfileManager] Formatting profile data:", data);
 
-		// Validate required fields
-		if (!data.handle) {
-			console.error("[ProfileManager] Missing required handle field");
-			throw new Error("Profile data missing required handle field");
-		}
+    // Validate input data
+    if (!data || typeof data !== "object") {
+      console.error("[ProfileManager] Invalid data object received");
+      throw new Error("Invalid profile data object");
+    }
 
-		if (!data.did) {
-			console.error("[ProfileManager] Missing required DID field");
-			throw new Error("Profile data missing required DID field");
-		}
+    // Validate required fields
+    if (!data.handle) {
+      console.error("[ProfileManager] Missing required handle field");
+      throw new Error("Profile data missing required handle field");
+    }
 
-		// Safely access optional fields
-		const displayName = data.displayName?.trim() || null;
-		const handle = data.handle?.trim();
-		const avatar = data.avatar || null;
-		const description = data.description?.trim() || null;
+    if (!data.did) {
+      console.error("[ProfileManager] Missing required DID field");
+      throw new Error("Profile data missing required DID field");
+    }
 
-		console.debug("[ProfileManager] Extracted profile fields:", {
-			displayName,
-			handle,
-			avatar,
-			description,
-		});
+    // Safely access optional fields
+    const displayName = data.displayName?.trim() || null;
+    const handle = data.handle?.trim();
+    const avatar = data.avatar || null;
+    const description = data.description?.trim() || null;
 
-		const formattedProfile = {
-			name: displayName || handle, // Fallback to handle if no display name
-			bsky_handle: handle,
-			bsky_url: `https://bsky.app/profile/${encodeURIComponent(handle)}`,
-			bsky_did: data.did,
-			avatar: avatar,
-			note: description,
-			raw: data, // Store raw data for debugging
-		};
+    console.debug("[ProfileManager] Extracted profile fields:", {
+      displayName,
+      handle,
+      avatar,
+      description,
+    });
 
-		console.debug("[ProfileManager] Formatted profile:", formattedProfile);
-		return formattedProfile;
-	}
+    const formattedProfile = {
+      name: displayName || handle, // Fallback to handle if no display name
+      bsky_handle: handle,
+      bsky_url: `https://bsky.app/profile/${encodeURIComponent(handle)}`,
+      bsky_did: data.did,
+      avatar: avatar,
+      note: description,
+      raw: data, // Store raw data for debugging
+    };
 
-	// async fetchPosts(handle, limit = 12) {
-	//     try {
-	//         const response = await fetch(
-	//             `${CONFIG.API.PUBLIC_URL}${CONFIG.API.ENDPOINTS.GET_AUTHOR_FEED}?actor=${handle}&limit=${limit}`,
-	//             { headers: this.authManager.getAuthHeaders() },
-	//         );
+    console.debug("[ProfileManager] Formatted profile:", formattedProfile);
+    return formattedProfile;
+  }
 
-	//         if (!response.ok) throw new Error("Failed to fetch posts");
+  // async fetchPosts(handle, limit = 12) {
+  //     try {
+  //         const response = await fetch(
+  //             `${CONFIG.API.PUBLIC_URL}${CONFIG.API.ENDPOINTS.GET_AUTHOR_FEED}?actor=${handle}&limit=${limit}`,
+  //             { headers: this.authManager.getAuthHeaders() },
+  //         );
 
-	//         const data = await response.json();
-	//         return this.formatPosts(data.feed);
-	//     } catch (error) {
-	//         console.error("Posts fetch error:", error);
-	//         throw error;
-	//     }
-	// }
+  //         if (!response.ok) throw new Error("Failed to fetch posts");
 
-	// formatPosts(feed) {
-	//     return feed
-	//         .filter(
-	//             (item) => !item.post.record.reply && !item.post.record.repost,
-	//         )
-	//         .map((item) => ({
-	//             text: item.post.record.text,
-	//             createdAt: new Date(
-	//                 item.post.record.createdAt,
-	//             ).toLocaleString(),
-	//             author: {
-	//                 name:
-	//                     item.post.author.displayName || item.post.author.handle,
-	//                 handle: item.post.author.handle,
-	//                 avatar: item.post.author.avatar,
-	//             },
-	//             // Add engagement metrics
-	//             replyCount: item.post.replyCount || 0,
-	//             repostCount: item.post.repostCount || 0,
-	//             likeCount: item.post.likeCount || 0,
-	//             // Add embed handling if present
-	//             embed: this.formatEmbed(item.post.embed),
-	//             // Add original URI for linking
-	//             uri: item.post.uri,
-	//             // Add cid for unique identification
-	//             cid: item.post.cid,
-	//         }));
-	// }
+  //         const data = await response.json();
+  //         return this.formatPosts(data.feed);
+  //     } catch (error) {
+  //         console.error("Posts fetch error:", error);
+  //         throw error;
+  //     }
+  // }
 
-	// formatEmbed(embed) {
-	//     if (!embed) return null;
+  // formatPosts(feed) {
+  //     return feed
+  //         .filter(
+  //             (item) => !item.post.record.reply && !item.post.record.repost,
+  //         )
+  //         .map((item) => ({
+  //             text: item.post.record.text,
+  //             createdAt: new Date(
+  //                 item.post.record.createdAt,
+  //             ).toLocaleString(),
+  //             author: {
+  //                 name:
+  //                     item.post.author.displayName || item.post.author.handle,
+  //                 handle: item.post.author.handle,
+  //                 avatar: item.post.author.avatar,
+  //             },
+  //             // Add engagement metrics
+  //             replyCount: item.post.replyCount || 0,
+  //             repostCount: item.post.repostCount || 0,
+  //             likeCount: item.post.likeCount || 0,
+  //             // Add embed handling if present
+  //             embed: this.formatEmbed(item.post.embed),
+  //             // Add original URI for linking
+  //             uri: item.post.uri,
+  //             // Add cid for unique identification
+  //             cid: item.post.cid,
+  //         }));
+  // }
 
-	//     // Handle images
-	//     if (embed.images) {
-	//         return {
-	//             type: "images",
-	//             images: embed.images.map((img) => ({
-	//                 url: img.thumb || img.fullsize,
-	//                 alt: img.alt,
-	//             })),
-	//         };
-	//     }
+  // formatEmbed(embed) {
+  //     if (!embed) return null;
 
-	//     // Handle external links
-	//     if (embed.external) {
-	//         return {
-	//             type: "external",
-	//             url: embed.external.uri,
-	//             title: embed.external.title,
-	//             description: embed.external.description,
-	//             thumb: embed.external.thumb,
-	//         };
-	//     }
+  //     // Handle images
+  //     if (embed.images) {
+  //         return {
+  //             type: "images",
+  //             images: embed.images.map((img) => ({
+  //                 url: img.thumb || img.fullsize,
+  //                 alt: img.alt,
+  //             })),
+  //         };
+  //     }
 
-	//     // Handle record embeds (quotes, etc)
-	//     if (embed.record) {
-	//         return {
-	//             type: "record",
-	//             record: {
-	//                 text: embed.record.value.text,
-	//                 author: embed.record.author,
-	//             },
-	//         };
-	//     }
+  //     // Handle external links
+  //     if (embed.external) {
+  //         return {
+  //             type: "external",
+  //             url: embed.external.uri,
+  //             title: embed.external.title,
+  //             description: embed.external.description,
+  //             thumb: embed.external.thumb,
+  //         };
+  //     }
 
-	//     return null;
-	// }
+  //     // Handle record embeds (quotes, etc)
+  //     if (embed.record) {
+  //         return {
+  //             type: "record",
+  //             record: {
+  //                 text: embed.record.value.text,
+  //                 author: embed.record.author,
+  //             },
+  //         };
+  //     }
+
+  //     return null;
+  // }
 }

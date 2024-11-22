@@ -1,128 +1,130 @@
-class PDSRecordManager {
-	constructor(authManager) {
-		if (!authManager) {
-			throw new Error("[PDSRecordManager] AuthManager is required");
-		}
-		this.authManager = authManager;
-		this.baseUrl = CONFIG.API.BASE_URL;
-	}
+import { CONFIG } from "./config";
 
-	// Helper method to handle auth headers with refresh
-	async getAuthHeadersWithRefresh() {
-		try {
-			// First try getting regular headers
-			const headers = this.authManager.getAuthHeaders();
-			return headers;
-		} catch (error) {
-			console.debug(
-				"[PDSRecordManager] Initial auth headers failed, attempting refresh",
-			);
+export class PDSRecordManager {
+  constructor(authManager) {
+    if (!authManager) {
+      throw new Error("[PDSRecordManager] AuthManager is required");
+    }
+    this.authManager = authManager;
+    this.baseUrl = CONFIG.API.BASE_URL;
+  }
 
-			// Attempt to refresh the session
-			const refreshResult = await this.authManager.refreshSession();
-			if (!refreshResult) {
-				throw new Error("Failed to refresh authentication");
-			}
+  // Helper method to handle auth headers with refresh
+  async getAuthHeadersWithRefresh() {
+    try {
+      // First try getting regular headers
+      const headers = this.authManager.getAuthHeaders();
+      return headers;
+    } catch (error) {
+      console.debug(
+        "[PDSRecordManager] Initial auth headers failed, attempting refresh",
+      );
 
-			// Try getting headers again after refresh
-			return this.authManager.getAuthHeaders();
-		}
-	}
+      // Attempt to refresh the session
+      const refreshResult = await this.authManager.refreshSession();
+      if (!refreshResult) {
+        throw new Error("Failed to refresh authentication");
+      }
 
-	async putRecord(collection, rkey, record) {
-		console.debug("[PDSRecordManager] Attempting to put record", {
-			collection,
-			rkey,
-			recordSize: JSON.stringify(record).length,
-		});
+      // Try getting headers again after refresh
+      return this.authManager.getAuthHeaders();
+    }
+  }
 
-		// Validate params first
-		if (!collection || !rkey || !record) {
-			throw new Error("Missing required parameters");
-		}
+  async putRecord(collection, rkey, record) {
+    console.debug("[PDSRecordManager] Attempting to put record", {
+      collection,
+      rkey,
+      recordSize: JSON.stringify(record).length,
+    });
 
-		try {
-			// Get auth headers with potential refresh
-			const headers = await this.getAuthHeadersWithRefresh();
+    // Validate params first
+    if (!collection || !rkey || !record) {
+      throw new Error("Missing required parameters");
+    }
 
-			if (!headers?.Authorization) {
-				throw new Error("No valid authorization header");
-			}
+    try {
+      // Get auth headers with potential refresh
+      const headers = await this.getAuthHeadersWithRefresh();
 
-			// Prepare request body
-			const requestBody = {
-				repo: this.authManager.did,
-				collection,
-				rkey,
-				record: {
-					...record,
-					$type: collection,
-					createdAt: new Date().toISOString(),
-				},
-			};
+      if (!headers?.Authorization) {
+        throw new Error("No valid authorization header");
+      }
 
-			const response = await fetch(
-				`${this.baseUrl}/com.atproto.repo.putRecord`,
-				{
-					method: "POST",
-					headers: headers,
-					body: JSON.stringify(requestBody),
-				},
-			);
+      // Prepare request body
+      const requestBody = {
+        repo: this.authManager.did,
+        collection,
+        rkey,
+        record: {
+          ...record,
+          $type: collection,
+          createdAt: new Date().toISOString(),
+        },
+      };
 
-			if (!response.ok) {
-				const errorText = await response.text();
-				throw new Error(`HTTP error! status: ${response.status} ${errorText}`);
-			}
+      const response = await fetch(
+        `${this.baseUrl}/com.atproto.repo.putRecord`,
+        {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify(requestBody),
+        },
+      );
 
-			return await response.json();
-		} catch (error) {
-			console.error("[PDSRecordManager] Put record error:", error);
-			throw error;
-		}
-	}
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status} ${errorText}`);
+      }
 
-	async getRecord(collection, rkey) {
-		console.debug("[PDSRecordManager] Attempting to get record", {
-			collection,
-			rkey,
-		});
+      return await response.json();
+    } catch (error) {
+      console.error("[PDSRecordManager] Put record error:", error);
+      throw error;
+    }
+  }
 
-		if (!collection || !rkey) {
-			throw new Error("Missing required parameters");
-		}
+  async getRecord(collection, rkey) {
+    console.debug("[PDSRecordManager] Attempting to get record", {
+      collection,
+      rkey,
+    });
 
-		try {
-			// Get auth headers with potential refresh
-			const headers = await this.getAuthHeadersWithRefresh();
+    if (!collection || !rkey) {
+      throw new Error("Missing required parameters");
+    }
 
-			if (!headers?.Authorization) {
-				throw new Error("No valid authorization header");
-			}
+    try {
+      // Get auth headers with potential refresh
+      const headers = await this.getAuthHeadersWithRefresh();
 
-			const url = new URL(`${this.baseUrl}/com.atproto.repo.getRecord`);
-			url.searchParams.append("repo", this.authManager.did);
-			url.searchParams.append("collection", collection);
-			url.searchParams.append("rkey", rkey);
+      if (!headers?.Authorization) {
+        throw new Error("No valid authorization header");
+      }
 
-			const response = await fetch(url, {
-				headers: headers,
-			});
+      const url = new URL(`${this.baseUrl}/com.atproto.repo.getRecord`);
+      url.searchParams.append("repo", this.authManager.did);
+      url.searchParams.append("collection", collection);
+      url.searchParams.append("rkey", rkey);
 
-			if (response.status === 404) {
-				return null;
-			}
+      const response = await fetch(url, {
+        headers: headers,
+      });
 
-			if (!response.ok) {
-				const errorText = await response.text();
-				throw new Error(`HTTP error! status: ${response.status} ${errorText}`);
-			}
+      if (response.status === 404) {
+        return null;
+      }
 
-			const data = await response.json();
-			return data.value;
-		} catch (error) {
-			console.error("[PDSRecordManager] Get record error:", error);
-			throw error;
-		}
-	}
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status} ${errorText}`);
+      }
+
+      const data = await response.json();
+      return data.value;
+    } catch (error) {
+      console.error("[PDSRecordManager] Get record error:", error);
+      throw error;
+    }
+  }
 }

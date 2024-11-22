@@ -2,418 +2,286 @@ import { PDSRecordManager } from "./pds";
 import { CONFIG } from "./config";
 
 export class Top8Manager {
-	constructor(authManager) {
-		if (!authManager) {
-			throw new Error("[Top8Manager] AuthManager is required");
-		}
-		this.pds = new PDSRecordManager(authManager);
+    constructor(authManager) {
+        if (!authManager) {
+            throw new Error("[Top8Manager] AuthManager is required");
+        }
+        this.pds = new PDSRecordManager(authManager);
 
-		// Use config values
-		this.recordType = CONFIG.TOP8.RECORD_TYPE;
-		this.recordKey = CONFIG.TOP8.RECORD_KEY;
+        // Use config values
+        this.recordType = CONFIG.TOP8.RECORD_TYPE;
+        this.recordKey = CONFIG.TOP8.RECORD_KEY;
 
-		// Add cache for follows
-		this.followsCache = null;
-		this.lastCacheUpdate = null;
-		this.cacheExpiration = CONFIG.TOP8.CACHE_DURATION;
-	}
+        this.listName = CONFIG.TOP8.LIST_NAME;
+        this.listDescription = CONFIG.TOP8.LIST_NAME;
+        this.listPurpose = CONFIG.TOP8.LIST_PURPOSE;
 
-	async initialize() {
-		console.debug("[Top8Manager] Starting initialization...", {
-			recordType: this.recordType,
-			recordKey: this.recordKey,
-		});
+        // Add cache for follows
+        this.followsCache = null;
+        this.lastCacheUpdate = null;
+        this.cacheExpiration = CONFIG.TOP8.CACHE_DURATION;
 
-		// Input validation
-		if (!this.recordType || !this.recordKey) {
-			console.error("[Top8Manager] Missing required configuration");
-			throw new Error("Invalid record type or key configuration");
-		}
+        // Store list URI after creation
+        this.listUri = null;
+    }
 
-		let record;
-		try {
-			console.debug("[Top8Manager] Attempting to fetch existing record...");
-			record = await this.pds.getRecord(this.recordType, this.recordKey);
-			console.debug(
-				"[Top8Manager] Fetch result:",
-				record ? "Found existing record" : "No record found",
-			);
-		} catch (fetchError) {
-			console.error("[Top8Manager] Error fetching record:", {
-				error: fetchError,
-				stack: fetchError.stack,
-			});
-			throw new Error("Failed to fetch Top 8 record", { cause: fetchError });
-		}
+    async initialize() {
+        console.debug("[Top8Manager] Starting initialization...");
 
-		// If no record exists, create it
-		if (!record) {
-			console.debug(
-				"[Top8Manager] No existing record found, initiating creation...",
-			);
-			try {
-				record = await this.createTop8();
-				console.debug("[Top8Manager] Successfully created new record:", {
-					recordId: record?.uri,
-					itemCount: record?.items?.length,
-				});
-			} catch (createError) {
-				console.error("[Top8Manager] Failed to create initial record:", {
-					error: createError,
-					stack: createError.stack,
-				});
-				return []; // Return empty array to allow app to continue
-			}
-		}
+        try {
+            // First, ensure the list exists
+            const list = await this.getOrCreateList();
+            this.listUri = `at://${this.pds.authManager.did}/${this.recordType}/${this.recordKey}`;
 
-		// Validate record structure
-		if (!record || typeof record !== "object") {
-			console.error("[Top8Manager] Invalid record structure:", record);
-			return [];
-		}
+            // Then get all list items
+            const items = await this.getListItems();
 
-		// Extract and validate items array
-		const items = record.items;
-		if (!Array.isArray(items)) {
-			console.warn("[Top8Manager] Record items is not an array:", items);
-			return [];
-		}
+            // Process and return the items
+            return this.processListItems(items);
+        } catch (error) {
+            console.error("[Top8Manager] Initialization error:", error);
+            throw error;
+        }
+    }
 
-		console.debug("[Top8Manager] Processing friends list...", {
-			friendCount: items.length,
-		});
+    async getOrCreateList() {
+        try {
+            // Try to get existing list
+            const existingList = await this.pds.getRecord(
+                this.recordType,
+                this.recordKey,
+            );
 
-		// Add unique identifiers to each friend with validation
-		const processedFriends = items
-			.map((friend, index) => {
-				if (!friend || !friend.did) {
-					console.warn("[Top8Manager] Invalid friend entry at index", index);
-					return null;
-				}
+            if (existingList) {
+                console.debug(
+                    "[Top8Manager] Found existing list:",
+                    existingList,
+                );
+                return existingList;
+            }
 
-				const timestamp = Date.now();
-				const uniqueId = `${friend.did}-${timestamp}-${index}`;
+            // Create new list if none exists
+            const newList = {
+                name: this.listName,
+                purpose: this.listPurpose,
+                description: this.listDescription,
+                createdAt: new Date().toISOString(),
+                $type: this.recordType,
+            };
 
-				console.debug("[Top8Manager] Processed friend:", {
-					index,
-					did: friend.did,
-					uniqueId,
-				});
+            const result = await this.pds.putRecord(
+                this.recordType,
+                this.recordKey,
+                newList,
+            );
 
-				return {
-					...friend,
-					uniqueId,
-					position: index,
-				};
-			})
-			.filter(Boolean); // Remove any null entries
+            console.debug("[Top8Manager] Created new list:", result);
+            return { ...newList, uri: result.uri };
+        } catch (error) {
+            console.error("[Top8Manager] Error in getOrCreateList:", error);
+            throw error;
+        }
+    }
 
-		console.debug("[Top8Manager] Initialization complete", {
-			totalFriends: processedFriends.length,
-		});
+    async getListItems() {
+        try {
+            const query = {
+                collection: "app.bsky.graph.listitem",
+                repo: this.pds.authManager.did,
+                limit: CONFIG.TOP8.MAX_FRIENDS,
+            };
 
-		return processedFriends;
-	}
+            const response = await fetch(
+                `${CONFIG.API.BASE_URL}/com.atproto.repo.listRecords?${new URLSearchParams(
+                    {
+                        collection: query.collection,
+                        repo: query.repo,
+                        limit: query.limit.toString(),
+                    },
+                )}`,
+                {
+                    headers: await this.pds.getAuthHeadersWithRefresh(),
+                },
+            );
 
-	async createTop8(
-		customName = "My Top 8 Friends",
-		customDescription = "My closest friends on Bluesky",
-	) {
-		const startTime = Date.now();
-		console.debug("[Top8Manager] Beginning Top 8 record creation process...", {
-			recordType: this.recordType,
-			recordKey: this.recordKey,
-			customName,
-			customDescription,
-			timestamp: new Date().toISOString(),
-		});
+            if (!response.ok) {
+                throw new Error(
+                    `Failed to fetch list items: ${response.status}`,
+                );
+            }
 
-		// Input validation with detailed error messages
-		if (!this.recordType) {
-			const error = new Error("Record type is required but was not provided");
-			console.error("[Top8Manager] Record type validation failed:", {
-				providedType: this.recordType,
-				error,
-			});
-			throw error;
-		}
+            const data = await response.json();
+            return data.records || [];
+        } catch (error) {
+            console.error("[Top8Manager] Error fetching list items:", error);
+            return [];
+        }
+    }
 
-		if (!this.recordKey) {
-			const error = new Error("Record key is required but was not provided");
-			console.error("[Top8Manager] Record key validation failed:", {
-				providedKey: this.recordKey,
-				error,
-			});
-			throw error;
-		}
+    processListItems(items) {
+        return items.map((item, index) => ({
+            did: item.value.subject,
+            position: index,
+            uniqueId: `${item.value.subject}-${Date.now()}-${index}`,
+            handle: item.value.handle,
+            displayName: item.value.displayName,
+            avatar: item.value.avatar,
+        }));
+    }
 
-		// Sanitize and validate string inputs
-		const sanitizedName = (customName || "").trim();
-		const sanitizedDescription = (customDescription || "").trim();
+    async loadAllFollows() {
+        console.debug("[Top8Manager] Loading all follows...");
+        const follows = [];
+        let cursor = null;
 
-		console.debug("[Top8Manager] Sanitized inputs:", {
-			originalName: customName,
-			sanitizedName,
-			originalDescription: customDescription,
-			sanitizedDescription,
-		});
+        try {
+            do {
+                const url = new URL(
+                    `${CONFIG.API.PUBLIC_URL}/app.bsky.graph.getFollows`,
+                );
+                url.searchParams.append("actor", this.pds.authManager.did);
+                url.searchParams.append("limit", "100");
+                if (cursor) {
+                    url.searchParams.append("cursor", cursor);
+                }
 
-		// Enhanced default record with additional metadata
-		const defaultRecord = {
-			purpose: CONFIG.TOP8.LIST_PURPOSE || "top8",
-			name: sanitizedName || "My Top 8 Friends",
-			description: sanitizedDescription || "My closest friends on Bluesky",
-			items: [],
-			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString(),
-			version: "1.0",
-			$type: this.recordType,
-			metadata: {
-				creator: this.pds?.authManager?.did,
-				createTimestamp: Date.now(),
-				schemaVersion: "1.0.0",
-				clientInfo: {
-					userAgent:
-						typeof window !== "undefined"
-							? window.navigator.userAgent
-							: "server",
-					platform:
-						typeof window !== "undefined"
-							? window.navigator.platform
-							: "server",
-				},
-			},
-		};
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
 
-		console.debug("[Top8Manager] Constructed record with metadata:", {
-			record: defaultRecord,
-			validation: {
-				hasRequiredFields: Boolean(defaultRecord.purpose && defaultRecord.name),
-				itemsLength: defaultRecord.items.length,
-				timestampsValid: Boolean(
-					Date.parse(defaultRecord.createdAt) &&
-						Date.parse(defaultRecord.updatedAt),
-				),
-			},
-		});
+                const data = await response.json();
+                follows.push(...(data.follows || []));
+                cursor = data.cursor;
 
-		try {
-			// Enhanced PDS connection validation
-			if (!this.pds) {
-				throw new Error("PDS connection not initialized");
-			}
+                console.debug(
+                    `[Top8Manager] Loaded ${follows.length} follows so far...`,
+                );
+            } while (cursor);
 
-			if (!this.pds.authManager) {
-				throw new Error("PDS auth manager not initialized");
-			}
+            // Format follows for consistent structure
+            this.followsCache = follows.map((follow) => ({
+                did: follow.did,
+                handle: follow.handle,
+                displayName: follow.displayName || follow.handle,
+                avatar: follow.avatar,
+            }));
 
-			if (!this.pds.authManager.did) {
-				throw new Error("No DID available in auth manager");
-			}
+            this.lastCacheUpdate = Date.now();
+            console.debug(
+                `[Top8Manager] Cached ${this.followsCache.length} total follows`,
+            );
 
-			console.debug("[Top8Manager] PDS connection validated", {
-				pdsInitialized: Boolean(this.pds),
-				authManagerInitialized: Boolean(this.pds.authManager),
-				did: this.pds.authManager.did,
-			});
+            return this.followsCache;
+        } catch (error) {
+            console.error("[Top8Manager] Error loading all follows:", error);
+            throw error;
+        }
+    }
 
-			console.debug("[Top8Manager] Initiating record creation in PDS...");
+    isCacheValid() {
+        return (
+            this.followsCache &&
+            this.lastCacheUpdate &&
+            Date.now() - this.lastCacheUpdate < this.cacheExpiration
+        );
+    }
 
-			// Create record with timeout handling
-			const timeoutPromise = new Promise((_, reject) => {
-				setTimeout(
-					() => reject(new Error("PDS record creation timed out")),
-					10000,
-				);
-			});
+    async searchFollows(query) {
+        console.debug("[Top8Manager] Searching follows:", query);
 
-			const result = await Promise.race([
-				this.pds.putRecord(this.recordType, this.recordKey, defaultRecord),
-				timeoutPromise,
-			]);
+        try {
+            if (!this.isCacheValid()) {
+                await this.loadAllFollows();
+            }
 
-			// Enhanced result validation
-			if (!result) {
-				throw new Error("No result received from PDS");
-			}
+            const searchQuery = query.toLowerCase();
 
-			if (!result.uri || !result.cid) {
-				throw new Error("Invalid PDS response format - missing uri or cid");
-			}
+            // Add unique IDs to search results
+            const results = this.followsCache
+                .filter(
+                    (follow) =>
+                        follow.handle.toLowerCase().includes(searchQuery) ||
+                        follow.displayName?.toLowerCase().includes(searchQuery),
+                )
+                .map((follow, index) => ({
+                    ...follow,
+                    uniqueId: `${follow.did}-${Date.now()}-${index}`,
+                }));
 
-			const duration = Date.now() - startTime;
-			console.debug("[Top8Manager] Successfully created Top 8 record:", {
-				uri: result.uri,
-				cid: result.cid,
-				record: defaultRecord,
-				processingTimeMs: duration,
-				timestamp: new Date().toISOString(),
-			});
+            console.debug(
+                `[Top8Manager] Found ${results.length} matches for "${query}"`,
+            );
+            return results;
+        } catch (error) {
+            console.error("[Top8Manager] Error searching follows:", error);
+            throw error;
+        }
+    }
 
-			// Return enhanced record
-			return {
-				...defaultRecord,
-				uri: result.uri,
-				cid: result.cid,
-				metadata: {
-					...defaultRecord.metadata,
-					processingTimeMs: duration,
-				},
-			};
-		} catch (error) {
-			const duration = Date.now() - startTime;
-			console.error("[Top8Manager] Critical error creating Top 8 record:", {
-				error,
-				errorName: error.name,
-				errorMessage: error.message,
-				stackTrace: error.stack,
-				recordType: this.recordType,
-				recordKey: this.recordKey,
-				processingTimeMs: duration,
-				timestamp: new Date().toISOString(),
-			});
+    async saveFriends(friends) {
+        if (
+            !Array.isArray(friends) ||
+            friends.length > CONFIG.TOP8.MAX_FRIENDS
+        ) {
+            throw new Error(
+                `Maximum ${CONFIG.TOP8.MAX_FRIENDS} friends allowed`,
+            );
+        }
 
-			// Enhanced error wrapping with detailed context
-			throw new Error(
-				`Failed to create Top 8 record (${duration}ms): ${error.message}`,
-				{
-					cause: error,
-					context: {
-						recordType: this.recordType,
-						recordKey: this.recordKey,
-						processingTimeMs: duration,
-					},
-				},
-			);
-		}
-	}
+        try {
+            // Ensure list exists and get URI
+            await this.getOrCreateList();
+            const listUri = `at://${this.pds.authManager.did}/${this.recordType}/${this.recordKey}`;
+            this.listUri = listUri;
 
-	async loadAllFollows() {
-		console.debug("[Top8Manager] Loading all follows...");
-		const follows = [];
-		let cursor = null;
+            // Delete existing items
+            await this.deleteExistingItems();
 
-		try {
-			do {
-				const url = new URL(
-					`${CONFIG.API.PUBLIC_URL}/app.bsky.graph.getFollows`,
-				);
-				url.searchParams.append("actor", this.pds.authManager.did);
-				url.searchParams.append("limit", "100");
-				if (cursor) {
-					url.searchParams.append("cursor", cursor);
-				}
+            // Create new items
+            return await Promise.all(
+                friends.map((friend, index) =>
+                    this.createListItem(friend, index),
+                ),
+            );
+        } catch (error) {
+            console.error("[Top8Manager] Error saving friends:", error);
+            throw error;
+        }
+    }
 
-				const response = await fetch(url);
-				if (!response.ok) {
-					throw new Error(`HTTP error! status: ${response.status}`);
-				}
+    async deleteExistingItems() {
+        try {
+            const existingItems = await this.getListItems();
+            await Promise.all(
+                existingItems.map((item) =>
+                    this.pds.deleteRecord("app.bsky.graph.listitem", item.rkey),
+                ),
+            );
+        } catch (error) {
+            console.error("[Top8Manager] Error deleting items:", error);
+            throw error;
+        }
+    }
 
-				const data = await response.json();
-				follows.push(...(data.follows || []));
-				cursor = data.cursor;
+    async createListItem(friend, index) {
+        if (!friend.did || !this.listUri) {
+            throw new Error("Invalid friend data or list URI not set");
+        }
 
-				console.debug(
-					`[Top8Manager] Loaded ${follows.length} follows so far...`,
-				);
-			} while (cursor);
+        const record = {
+            list: this.listUri,
+            subject: friend.did,
+            createdAt: new Date().toISOString(),
+            $type: "app.bsky.graph.listitem",
+        };
 
-			// Format follows for consistent structure
-			this.followsCache = follows.map((follow) => ({
-				did: follow.did,
-				handle: follow.handle,
-				displayName: follow.displayName || follow.handle,
-				avatar: follow.avatar,
-			}));
+        const rkey = `${this.recordKey}_${index}`;
+        return this.pds.putRecord("app.bsky.graph.listitem", rkey, record);
+    }
 
-			this.lastCacheUpdate = Date.now();
-			console.debug(
-				`[Top8Manager] Cached ${this.followsCache.length} total follows`,
-			);
-
-			return this.followsCache;
-		} catch (error) {
-			console.error("[Top8Manager] Error loading all follows:", error);
-			throw error;
-		}
-	}
-
-	isCacheValid() {
-		return (
-			this.followsCache &&
-			this.lastCacheUpdate &&
-			Date.now() - this.lastCacheUpdate < this.cacheExpiration
-		);
-	}
-
-	async searchFollows(query) {
-		console.debug("[Top8Manager] Searching follows:", query);
-
-		try {
-			if (!this.isCacheValid()) {
-				await this.loadAllFollows();
-			}
-
-			const searchQuery = query.toLowerCase();
-
-			// Add unique IDs to search results
-			const results = this.followsCache
-				.filter(
-					(follow) =>
-						follow.handle.toLowerCase().includes(searchQuery) ||
-						follow.displayName?.toLowerCase().includes(searchQuery),
-				)
-				.map((follow, index) => ({
-					...follow,
-					uniqueId: `${follow.did}-${Date.now()}-${index}`,
-				}));
-
-			console.debug(
-				`[Top8Manager] Found ${results.length} matches for "${query}"`,
-			);
-			return results;
-		} catch (error) {
-			console.error("[Top8Manager] Error searching follows:", error);
-			throw error;
-		}
-	}
-
-	async saveFriends(friends) {
-		console.debug("[Top8Manager] Saving friends:", friends);
-
-		if (!Array.isArray(friends) || friends.length > CONFIG.TOP8.MAX_FRIENDS) {
-			throw new Error(
-				`Invalid friends list - maximum ${CONFIG.TOP8.MAX_FRIENDS} friends allowed`,
-			);
-		}
-
-		try {
-			const record = {
-				purpose: CONFIG.TOP8.LIST_PURPOSE,
-				name: "My Top 8 Friends",
-				description: "My closest friends on Bluesky",
-				items: friends.map((friend, index) => ({
-					subject: friend.did,
-					handle: friend.handle,
-					displayName: friend.displayName,
-					avatar: friend.avatar,
-					position: index,
-					uniqueId: friend.uniqueId || `${friend.did}-${Date.now()}-${index}`,
-				})),
-				createdAt: new Date().toISOString(),
-				$type: this.recordType,
-			};
-
-			await this.pds.putRecord(this.recordType, this.recordKey, record);
-			return true;
-		} catch (error) {
-			console.error("[Top8Manager] Error saving friends:", error);
-			throw error;
-		}
-	}
-
-	clearCache() {
-		this.followsCache = null;
-		this.lastCacheUpdate = null;
-	}
+    clearCache() {
+        this.followsCache = null;
+        this.lastCacheUpdate = null;
+    }
 }

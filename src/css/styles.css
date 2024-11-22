@@ -183,7 +183,7 @@
     .primary-button {
         background-color: var(--primary);
         color: white;
-        @apply py-2 px-4 rounded hover:opacity-90 transition-opacity duration-200;
+        @apply py-2 px-4 hover:opacity-90 transition-opacity duration-200;
     }
 
     .themed-link {

@@ -16,6 +16,7 @@ export class PDSRecordManager {
         } catch (error) {
             console.debug(
                 "[PDSRecordManager] Initial auth headers failed, attempting refresh",
+                error,
             );
             const refreshResult = await this.authManager.refreshSession();
             if (!refreshResult) {

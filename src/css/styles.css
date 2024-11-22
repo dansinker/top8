@@ -3,200 +3,196 @@
 @tailwind utilities;
 
 @layer base {
-    :root {
-        --primary: #003399;
-        --secondary: #1b3a6b;
-        --accent: #5b7ba6;
-        --background: #effffa;
-        --text: #000000;
-        --link: #0000ff;
-        --border: #d1d5db;
-    }
+	:root {
+		--primary: #003399;
+		--secondary: #1b3a6b;
+		--accent: #5b7ba6;
+		--background: #effffa;
+		--text: #000000;
+		--link: #0000ff;
+		--border: #d1d5db;
+	}
 }
 
 /* Theme definitions */
 .pink {
-    --primary: #ff1493;
-    --secondary: #ff69b4;
-    --accent: #ffb6c1;
-    --background: #fff0f555;
-    --text: #000000;
-    --link: #c71585;
-    --border: #ffb6c1;
-    background-image: url(../images/390g.gif);
-    background-repeat: repeat;
-    background-position: center center;
+	--primary: #ff1493;
+	--secondary: #ff69b4;
+	--accent: #ffb6c1;
+	--background: #fff0f555;
+	--text: #000000;
+	--link: #c71585;
+	--border: #ffb6c1;
+	background-image: url(../images/390g.gif);
+	background-repeat: repeat;
+	background-position: center center;
 }
 
 .dark-blue {
-    --primary: #000080;
-    --secondary: #0000cd;
-    --accent: #4169e1;
-    --background: #f0f8ff55;
-    --text: #000000;
-    --link: #0000ff;
-    --border: #4169e1;
-    background-image: url("../images/4f.gif");
-    background-repeat: repeat;
-    background-position: center center;
+	--primary: #000080;
+	--secondary: #0000cd;
+	--accent: #4169e1;
+	--background: #f0f8ff55;
+	--text: #000000;
+	--link: #0000ff;
+	--border: #4169e1;
+	background-image: url("../images/4f.gif");
+	background-repeat: repeat;
+	background-position: center center;
 }
 
 .almond {
-    --primary: #efdecd;
-    --secondary: #deb887;
-    --accent: #d2b48c;
-    --background: #faebd7;
-    --text: #8b4513;
-    --link: #a0522d;
-    --border: #deb887;
-    background-image: url("../images/169b.jpg");
-    background-repeat: repeat;
-    background-position: center center;
+	--primary: #efdecd;
+	--secondary: #deb887;
+	--accent: #d2b48c;
+	--background: #faebd7;
+	--text: #8b4513;
+	--link: #a0522d;
+	--border: #deb887;
+	background-image: url("../images/169b.jpg");
+	background-repeat: repeat;
+	background-position: center center;
 }
 
 .vampire {
-    --primary: #8b0000;
-    --secondary: #800000;
-    --accent: #a52a2a;
-    --background: #000000;
-    --text: #999;
-    --link: #dc143c;
-    --border: #8b0000;
-    background-image: url("../images/206c.gif");
-    background-repeat: repeat;
-    background-position: center center;
+	--primary: #8b0000;
+	--secondary: #800000;
+	--accent: #a52a2a;
+	--background: #000000;
+	--text: #999;
+	--link: #dc143c;
+	--border: #8b0000;
+	background-image: url("../images/206c.gif");
+	background-repeat: repeat;
+	background-position: center center;
 }
 
 .toxic {
-    --primary: #39ff14;
-    --secondary: #00ff00;
-    --accent: #7fff00;
-    --background: #0a0a0a;
-    --text: #00ff00;
-    --link: #00ff00;
-    --border: #32cd32;
-    background-image: url("../images/215b.gif");
-    background-repeat: repeat;
-    background-position: center center;
+	--primary: #39ff14;
+	--secondary: #00ff00;
+	--accent: #7fff00;
+	--background: #0a0a0a;
+	--text: #00ff00;
+	--link: #00ff00;
+	--border: #32cd32;
+	background-image: url("../images/215b.gif");
+	background-repeat: repeat;
+	background-position: center center;
 }
 
 .shoes {
-    --primary: #ff4500;
-    --secondary: #ff6347;
-    --accent: #ff7f50;
-    --background: #fff5ee;
-    --text: #000000;
-    --link: #ff4500;
-    --border: #ff7f50;
-    background-image: url("../images/176z.gif");
-    background-repeat: repeat;
-    background-position: center center;
+	--primary: #ff4500;
+	--secondary: #ff6347;
+	--accent: #ff7f50;
+	--background: #fff5ee;
+	--text: #000000;
+	--link: #ff4500;
+	--border: #ff7f50;
+	background-image: url("../images/176z.gif");
+	background-repeat: repeat;
+	background-position: center center;
 }
 
 .angels {
-    --primary: #e6e6fa;
-    --secondary: #dda0dd;
-    --accent: #d8bfd8;
-    --background: #f8f8ff;
-    --text: #4b0082;
-    --link: #9370db;
-    --border: #dda0dd;
-    background-image: url("../images/76a.jpg");
-    background-repeat: repeat;
-    background-position: center center;
+	--primary: #e6e6fa;
+	--secondary: #dda0dd;
+	--accent: #d8bfd8;
+	--background: #f8f8ff;
+	--text: #4b0082;
+	--link: #9370db;
+	--border: #dda0dd;
+	background-image: url("../images/76a.jpg");
+	background-repeat: repeat;
+	background-position: center center;
 }
 
 .night {
-    --primary: #191970;
-    --secondary: #000080;
-    --accent: #483d8b;
-    --background: #000000;
-    --text: #e6e6fa;
-    --link: #6a5acd;
-    --border: #483d8b;
-    background-image: url("../images/1128n.gif");
-    background-repeat: repeat;
-    background-position: center center;
+	--primary: #191970;
+	--secondary: #000080;
+	--accent: #483d8b;
+	--background: #000000;
+	--text: #e6e6fa;
+	--link: #6a5acd;
+	--border: #483d8b;
+	background-image: url("../images/1128n.gif");
+	background-repeat: repeat;
+	background-position: center center;
 }
 
 .pastel {
-    --primary: #ffb7c5;
-    --secondary: #ffc0cb;
-    --accent: #ffe4e1;
-    --background: #fff0f5;
-    --text: #db7093;
-    --link: #ff69b4;
-    --border: #ffb7c5;
-    background-image: url("../images/639d.jpg");
-    background-repeat: repeat;
-    background-position: center center;
+	--primary: #ffb7c5;
+	--secondary: #ffc0cb;
+	--accent: #ffe4e1;
+	--background: #fff0f5;
+	--text: #db7093;
+	--link: #ff69b4;
+	--border: #ffb7c5;
+	background-image: url("../images/639d.jpg");
+	background-repeat: repeat;
+	background-position: center center;
 }
 
 @layer components {
-    /* Theme color choices */
-    .color-choice {
-        @apply h-8 w-8 rounded-full border-2 border-gray-400 inline-block mr-1 cursor-pointer hover:border-white transition-colors duration-200;
-    }
+	/* Theme color choices */
+	.color-choice {
+		@apply h-8 w-8 rounded-full border-2 border-gray-400 inline-block mr-1 cursor-pointer hover:border-white transition-colors duration-200;
+	}
 
-    .color-choice.pink {
-        background-color: #ff1493;
-    }
-    .color-choice.dark-blue {
-        background-color: #000080;
-    }
-    .color-choice.almond {
-        background-color: #efdecd;
-    }
-    .color-choice.vampire {
-        background-color: #8b0000;
-    }
-    .color-choice.toxic {
-        background-color: #39ff14;
-    }
-    .color-choice.shoes {
-        background-color: #ff4500;
-    }
-    .color-choice.angels {
-        background-color: #e6e6fa;
-    }
-    .color-choice.night {
-        background-color: #191970;
-    }
-    .color-choice.pastel {
-        background-color: #ffb7c5;
-    }
+	.color-choice.pink {
+		background-color: #ff1493;
+	}
+	.color-choice.dark-blue {
+		background-color: #000080;
+	}
+	.color-choice.almond {
+		background-color: #efdecd;
+	}
+	.color-choice.vampire {
+		background-color: #8b0000;
+	}
+	.color-choice.toxic {
+		background-color: #39ff14;
+	}
+	.color-choice.shoes {
+		background-color: #ff4500;
+	}
+	.color-choice.angels {
+		background-color: #e6e6fa;
+	}
+	.color-choice.night {
+		background-color: #191970;
+	}
+	.color-choice.pastel {
+		background-color: #ffb7c5;
+	}
 
-    /* Theme-aware components */
-    .section-header {
-        @apply bg-gradient-to-b text-white p-2 font-bold text-sm;
-        background-image: linear-gradient(
-            to bottom,
-            var(--accent),
-            var(--primary)
-        );
-    }
+	/* Theme-aware components */
+	.section-header {
+		@apply bg-gradient-to-b text-white p-2 font-bold text-sm;
+		background-image: linear-gradient(to bottom, var(--accent), var(--primary));
+	}
 
-    .page-background {
-        background-color: var(--background);
-    }
+	.page-background {
+		background-color: var(--background);
+	}
 
-    .primary-button {
-        background-color: var(--primary);
-        color: white;
-        @apply py-2 px-4 hover:opacity-90 transition-opacity duration-200;
-    }
+	.primary-button {
+		background-color: var(--primary);
+		color: white;
+		@apply py-2 px-4 hover:opacity-90 transition-opacity duration-200;
+	}
 
-    .themed-link {
-        color: var(--link);
-        @apply hover:underline;
-    }
+	.themed-link {
+		color: var(--link);
+		@apply hover:underline;
+	}
 
-    .themed-border {
-        border-color: var(--border);
-        @apply border;
-    }
+	.themed-border {
+		border-color: var(--border);
+		@apply border;
+	}
 
-    .themed-text {
-        color: var(--text);
-    }
+	.themed-text {
+		color: var(--text);
+	}
 }

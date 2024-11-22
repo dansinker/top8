@@ -7,13 +7,11 @@
         <link rel="stylesheet" href="css/styles.css" />
         <script type="module" src="js/index.js"></script>
     </head>
-    <body x-data="theme()" :class="themeClass" class="bg-[#EFFFFA]">
+    <body x-data="theme()" :class="themeClass" class="page-background">
         <!-- Fixed width container -->
-        <div
-            class="max-w-[900px] mx-auto bg-white border-l border-r border-gray-300 min-h-screen"
-        >
+        <div class="max-w-[900px] mx-auto bg-white themed-border min-h-screen">
             <!-- Logo Area -->
-            <div class="bg-gradient-to-b from-[#003399] to-[#1B3A6B] p-4">
+            <div class="section-header p-4">
                 <img
                     src="images/logo.svg"
                     alt="Top 8 Space"
@@ -31,37 +29,30 @@
                 <!-- Left Column -->
                 <div class="w-[300px] space-y-4">
                     <!-- Login Form -->
-                    <div
-                        x-show="!person.name"
-                        class="border border-gray-300 rounded"
-                    >
-                        <div
-                            class="bg-gradient-to-b from-[#5B7BA6] to-[#2B4B7B] text-white p-2 font-bold"
-                        >
-                            Log in with Bluesky
-                        </div>
+                    <div x-show="!person.name" class="themed-border rounded">
+                        <div class="section-header">Log in with Bluesky</div>
                         <div class="p-4">
                             <form @submit.prevent="loginUser" class="space-y-4">
                                 <div class="space-y-2">
-                                    <label class="block text-sm"
+                                    <label class="block text-sm themed-text"
                                         >Username</label
                                     >
                                     <input
                                         type="text"
                                         x-model="username"
                                         required
-                                        class="w-full px-3 py-2 border rounded focus:ring-1"
+                                        class="w-full px-3 py-2 themed-border rounded focus:ring-1"
                                     />
                                 </div>
                                 <div class="space-y-2">
-                                    <label class="block text-sm"
+                                    <label class="block text-sm themed-text"
                                         >Password</label
                                     >
                                     <input
                                         type="password"
                                         x-model="password"
                                         required
-                                        class="w-full px-3 py-2 border rounded focus:ring-1"
+                                        class="w-full px-3 py-2 themed-border rounded focus:ring-1"
                                     />
                                 </div>
                                 <div
@@ -72,20 +63,20 @@
                                 <button
                                     type="submit"
                                     :disabled="loading"
-                                    class="w-full bg-[#003399] text-white py-2 rounded hover:bg-[#002266]"
-                                    x-text="loading ? 'Logging in...' : 'Log in'"
-                                ></button>
+                                    class="primary-button w-full"
+                                >
+                                    <span
+                                        x-text="loading ? 'Logging in...' : 'Log in'"
+                                    ></span>
+                                </button>
                             </form>
                         </div>
                     </div>
 
                     <!-- Profile Box -->
-                    <div
-                        x-show="person.name"
-                        class="border border-gray-300 rounded"
-                    >
+                    <div x-show="person.name" class="themed-border rounded">
                         <div
-                            class="bg-gradient-to-b from-[#5B7BA6] to-[#2B4B7B] text-white p-2 font-bold flex justify-between items-center"
+                            class="section-header flex justify-between items-center"
                         >
                             <span x-text="person.name + '\'s Profile'"></span>
                         </div>
@@ -93,31 +84,43 @@
                             <img
                                 :src="person.avatar"
                                 :alt="person.name"
-                                class="w-full border-2 border-gray-300 p-1"
+                                class="w-full themed-border p-1"
                             />
 
                             <!-- Classic MySpace table layout -->
-                            <table
-                                class="w-full text-sm border border-gray-300"
-                            >
+                            <table class="w-full text-sm themed-border">
                                 <tr>
-                                    <td class="bg-gray-100 p-2 w-24">Name:</td>
-                                    <td class="p-2" x-text="person.name"></td>
+                                    <td
+                                        class="bg-gray-100 p-2 w-24 themed-text"
+                                    >
+                                        Name:
+                                    </td>
+                                    <td
+                                        class="p-2 themed-text"
+                                        x-text="person.name"
+                                    ></td>
                                 </tr>
                                 <tr>
-                                    <td class="bg-gray-100 p-2">Handle:</td>
+                                    <td class="bg-gray-100 p-2 themed-text">
+                                        Handle:
+                                    </td>
                                     <td class="p-2">
                                         <a
                                             :href="person.bsky_url"
                                             target="_blank"
-                                            class="text-blue-600 hover:underline"
+                                            class="themed-link"
                                             x-text="person.bsky_handle"
                                         ></a>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="bg-gray-100 p-2">About:</td>
-                                    <td class="p-2" x-html="person.note"></td>
+                                    <td class="bg-gray-100 p-2 themed-text">
+                                        About:
+                                    </td>
+                                    <td
+                                        class="p-2 themed-text"
+                                        x-html="person.note"
+                                    ></td>
                                 </tr>
                             </table>
 
@@ -131,15 +134,8 @@
                     </div>
 
                     <!-- Theme Selector -->
-                    <div
-                        x-data="theme()"
-                        class="border border-gray-300 rounded"
-                    >
-                        <div
-                            class="bg-gradient-to-b from-[#5B7BA6] to-[#2B4B7B] text-white p-2 font-bold"
-                        >
-                            Customize Profile
-                        </div>
+                    <div x-data="theme()" class="themed-border rounded">
+                        <div class="section-header">Customize Profile</div>
                         <div class="p-4">
                             <div class="flex flex-wrap gap-2">
                                 <template x-for="ct in colorThemes" :key="ct">
@@ -160,17 +156,17 @@
                     <div
                         x-data="top8"
                         x-init="init"
-                        class="border border-gray-300 rounded"
+                        class="themed-border rounded"
                     >
                         <div
-                            class="bg-gradient-to-b from-[#5B7BA6] to-[#2B4B7B] text-white p-2 font-bold flex justify-between items-center"
+                            class="section-header flex justify-between items-center"
                         >
                             <span
                                 >My Top <span x-text="friends.length"></span
                             ></span>
                             <button
                                 @click="showDialog = true; searchQuery = ''; searchResults = []"
-                                class="text-sm px-3 py-1 bg-blue-700 text-white rounded hover:bg-blue-800"
+                                class="text-sm px-3 py-1 primary-button"
                             >
                                 Edit Top 8
                             </button>
@@ -186,16 +182,16 @@
                                     <img
                                         :src="friend.avatar || '/api/placeholder/120/120'"
                                         :alt="friend.displayName"
-                                        class="w-full border-2 border-gray-300 p-1"
+                                        class="w-full themed-border p-1"
                                     />
                                     <div
                                         x-text="friend.displayName"
-                                        class="font-bold mt-2 text-sm"
+                                        class="font-bold mt-2 text-sm themed-text"
                                     ></div>
                                     <a
                                         :href="'https://bsky.app/profile/' + friend.handle"
                                         target="_blank"
-                                        class="text-sm text-blue-600 hover:underline"
+                                        class="themed-link text-sm"
                                         x-text="friend.handle"
                                     ></a>
                                 </div>
@@ -203,20 +199,85 @@
                         </div>
 
                         <!-- Friend Selection Dialog -->
-                        <!-- (Keep existing dialog code as it's already well structured) -->
+                        <div
+                            x-show="showDialog"
+                            class="dialog-overlay"
+                            @click="showDialog = false"
+                        >
+                            <div class="dialog-content" @click.stop>
+                                <div class="section-header mb-4">
+                                    Edit Top 8 Friends
+                                </div>
+                                <div class="space-y-4">
+                                    <div class="flex gap-2">
+                                        <input
+                                            type="text"
+                                            x-model="searchQuery"
+                                            @input="searchFriends"
+                                            placeholder="Search friends..."
+                                            class="flex-1 px-3 py-2 themed-border rounded"
+                                        />
+                                    </div>
+                                    <div class="max-h-96 overflow-y-auto">
+                                        <template
+                                            x-for="friend in searchResults"
+                                            :key="friend.uniqueId"
+                                        >
+                                            <div
+                                                class="friend-item"
+                                                :class="{ 'selected': isFriendSelected(friend) }"
+                                                @click="toggleFriend(friend)"
+                                            >
+                                                <img
+                                                    :src="friend.avatar || '/api/placeholder/40/40'"
+                                                    :alt="friend.displayName"
+                                                    class="friend-avatar"
+                                                />
+                                                <div>
+                                                    <div
+                                                        x-text="friend.displayName"
+                                                        class="font-bold themed-text"
+                                                    ></div>
+                                                    <div
+                                                        x-text="friend.handle"
+                                                        class="text-sm text-gray-500"
+                                                    ></div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                    <div
+                                        x-show="error"
+                                        x-text="error"
+                                        class="text-red-600"
+                                    ></div>
+                                    <div class="flex justify-end gap-2">
+                                        <button
+                                            @click="showDialog = false"
+                                            class="px-4 py-2 border rounded hover:bg-gray-50"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            @click="saveFriends"
+                                            class="primary-button"
+                                            :disabled="loading"
+                                        >
+                                            Save Changes
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Posts Section -->
                     <div
                         x-data="posts"
                         x-show="person.bsky_handle"
-                        class="border border-gray-300 rounded"
+                        class="themed-border rounded"
                     >
-                        <div
-                            class="bg-gradient-to-b from-[#5B7BA6] to-[#2B4B7B] text-white p-2 font-bold"
-                        >
-                            My Latest Posts
-                        </div>
+                        <div class="section-header">My Latest Posts</div>
                         <div class="p-4">
                             <!-- Loading State -->
                             <div x-show="loading" class="text-center py-4">
@@ -237,10 +298,8 @@
 
                             <!-- Posts -->
                             <template x-for="blog in blogs" :key="blog.uri">
-                                <div
-                                    class="border-b border-gray-200 last:border-b-0 py-4"
-                                >
-                                    <div class="bg-[#F5F5F5] p-2 mb-2 text-sm">
+                                <div class="blog-post">
+                                    <div class="blog-header">
                                         <span
                                             x-text="new Date(blog.createdAt).toLocaleString()"
                                             class="font-bold"
@@ -248,13 +307,13 @@
                                     </div>
                                     <p
                                         x-html="blog.text"
-                                        class="mb-2 text-sm"
+                                        class="mb-2 text-sm themed-text"
                                     ></p>
                                     <div class="text-xs text-gray-600">
                                         <a
                                             :href="blog.author.url"
                                             target="_blank"
-                                            class="text-blue-600 hover:underline"
+                                            class="themed-link"
                                         >
                                             <span
                                                 x-text="blog.author.name"

@@ -20,7 +20,7 @@ window.managers.authManager = new AuthManager();
 
 // Then create the rest of the managers using the authManager instance
 window.managers.profileManager = new ProfileManager(
-	window.managers.authManager,
+    window.managers.authManager,
 );
 window.managers.themeManager = new PDSThemeManager(window.managers.authManager);
 window.managers.postsManager = new PostManager();
@@ -32,6 +32,7 @@ import "./alpine/alpine-auth";
 import "./alpine/alpine-theme";
 import "./alpine/alpine-posts";
 import "./alpine/alpine-top8";
+import "./alpine/alpine-router";
 
 // Initialize Alpine
 window.Alpine = Alpine;

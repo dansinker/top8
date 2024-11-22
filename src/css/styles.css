@@ -1,259 +1,60 @@
+/* Reset default styles */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer components {
-	.color-choice {
-		@apply h-8 w-8 rounded-full border border-black inline-block mr-1 cursor-pointer hover:border-white;
-	}
+  .color-choice {
+    @apply h-8 w-8 rounded-full border border-black inline-block mr-1 cursor-pointer hover:border-white;
+  }
 
-	.dialog-overlay {
-		@apply fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center;
-	}
+  .dialog-overlay {
+    @apply fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center;
+  }
 
-	.dialog-content {
-		@apply bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-4;
-	}
+  .dialog-content {
+    @apply bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-4;
+  }
 
-	.friend-item {
-		@apply flex items-center p-3 border rounded-lg mb-2 cursor-pointer transition-all hover:bg-gray-50;
-	}
+  .friend-item {
+    @apply flex items-center p-3 border rounded-lg mb-2 cursor-pointer transition-all hover:bg-gray-50;
+  }
 
-	.friend-item.selected {
-		@apply border-blue-500 bg-blue-50;
-	}
+  .friend-item.selected {
+    @apply border-blue-500 bg-blue-50;
+  }
 
-	.friend-item .avatar {
-		@apply w-10 h-10 rounded-full mr-3;
-	}
+  .friend-item .avatar {
+    @apply w-10 h-10 rounded-full mr-3;
+  }
 
-	.friend-info {
-		@apply flex flex-col;
-	}
+  .friend-info {
+    @apply flex flex-col;
+  }
 
-	.handle {
-		@apply text-sm text-gray-600;
-	}
+  .handle {
+    @apply text-sm text-gray-600;
+  }
 
-	.dialog-buttons {
-		@apply mt-4 flex justify-end gap-2;
-	}
+  .dialog-buttons {
+    @apply mt-4 flex justify-end gap-2;
+  }
 
-	.error-message {
-		@apply text-red-500 my-2 p-2 bg-red-50 rounded-md;
-	}
+  .error-message {
+    @apply text-red-500 my-2 p-2 bg-red-50 rounded-md;
+  }
 
-	.friends-grid {
-		@apply grid grid-cols-2 md:grid-cols-4 gap-4 mt-4;
-	}
+  .friends-grid {
+    @apply grid grid-cols-2 md:grid-cols-4 gap-4 mt-4;
+  }
 
-	.loading-indicator {
-		@apply mt-2 text-sm text-gray-600;
-	}
+  .loading-indicator {
+    @apply mt-2 text-sm text-gray-600;
+  }
 
-	.progress-note {
-		@apply text-xs opacity-80 mt-1;
-	}
+  .progress-note {
+    @apply text-xs opacity-80 mt-1;
+  }
 }
 
 /* Theme Classes */
-.pink {
-	@apply bg-pink-bg text-pink-text;
-	.box {
-		@apply bg-pink-bg border border-white;
-	}
-	.box h1 {
-		@apply bg-pink-header text-pink-text;
-	}
-	#logo {
-		@apply bg-pink-logo;
-	}
-}
-
-.dark-blue {
-	@apply bg-dark-blue-bg text-dark-blue-text;
-	.box {
-		@apply bg-dark-blue-bg border border-white;
-	}
-	.box h1 {
-		@apply bg-dark-blue-header text-dark-blue-text;
-	}
-	#logo {
-		@apply bg-dark-blue-logo;
-	}
-}
-
-.almond {
-	@apply bg-almond-bg text-almond-text;
-	.box {
-		@apply bg-almond-bg border border-white;
-	}
-	.box h1 {
-		@apply bg-almond-header text-white;
-	}
-	#logo {
-		@apply bg-almond-logo;
-	}
-}
-
-.vampire {
-	@apply bg-vampire-bg text-vampire-text;
-	.box {
-		@apply bg-vampire-bg border border-white;
-	}
-	.box h1 {
-		@apply bg-vampire-header text-white;
-	}
-	#logo {
-		@apply bg-vampire-logo;
-	}
-}
-
-.toxic {
-	@apply bg-toxic-bg text-toxic-text;
-	.box {
-		@apply bg-toxic-bg border border-white;
-	}
-	.box h1 {
-		@apply bg-toxic-header text-yellow-300;
-	}
-	#logo {
-		@apply bg-toxic-logo;
-	}
-}
-
-.shoes {
-	@apply bg-shoes-bg text-shoes-text;
-	.box {
-		@apply bg-shoes-bg border border-white;
-	}
-	.box h1 {
-		@apply bg-shoes-header text-cyan-400/70;
-	}
-	#logo {
-		@apply bg-shoes-logo;
-	}
-}
-
-.angels {
-	@apply bg-angels-bg text-angels-text;
-	.box {
-		@apply bg-angels-bg border border-white;
-	}
-	.box h1 {
-		@apply bg-angels-header text-[#426889];
-	}
-	#logo {
-		@apply bg-angels-logo;
-	}
-}
-
-.night {
-	@apply bg-night-bg text-night-text;
-	.box {
-		@apply bg-night-bg border border-white;
-	}
-	.box h1 {
-		@apply bg-night-header text-white;
-	}
-	#logo {
-		@apply bg-night-logo;
-	}
-}
-
-.pastel {
-	@apply bg-pastel-bg text-pastel-text;
-	.box {
-		@apply bg-pastel-bg border border-white;
-	}
-	.box h1 {
-		@apply bg-pastel-header text-[#e2acd9];
-	}
-	#logo {
-		@apply bg-pastel-logo;
-	}
-}
-
-/* Layout */
-#wrapper {
-	@apply min-h-screen bg-repeat bg-fixed;
-}
-
-#wholething {
-	@apply w-full max-w-5xl mx-auto px-4;
-}
-
-#logo {
-	@apply mb-8 mt-8 mx-auto w-full max-w-5xl border border-white;
-}
-
-#logo img {
-	@apply w-64 p-4 ml-3;
-}
-
-#leftcolumn {
-	@apply float-left w-80 p-2.5 pl-0 mr-5 overflow-hidden;
-}
-
-#rightcolumn {
-	@apply block overflow-hidden;
-}
-
-/* Profile */
-#profilebox {
-	@apply overflow-hidden mb-5 -mt-2.5;
-}
-
-#profilebox img {
-	@apply w-full max-w-[300px] border border-blue-500;
-}
-
-.box h1 {
-	@apply border-b border-white p-2.5 text-base;
-}
-
-/* Friend Display */
-.friend {
-	@apply float-left p-2.5;
-}
-
-.friend img {
-	@apply w-24 border border-blue-500;
-}
-
-.friend h2,
-.friend a {
-	@apply text-sm mt-0;
-}
-
-.friend h2 {
-	@apply mb-1;
-}
-
-/* Posts */
-div.post {
-	@apply pb-5 border-b border-white;
-}
-
-p.post img {
-	@apply w-48 mb-2.5 -ml-2.5;
-}
-
-p.post:last-child {
-	@apply border-b-0;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-	#wholething {
-		@apply w-auto;
-	}
-
-	#logo {
-		@apply w-auto;
-	}
-
-	#leftcolumn {
-		@apply float-none w-auto mr-0;
-	}
-}

@@ -1,38 +1,35 @@
-// Import Alpine.js
 import Alpine from "alpinejs";
-
-// First import config and core utilities
 import "./config";
 import "./storage";
-
-// Import managers
 import { AuthManager } from "./auth";
 import { PDSThemeManager } from "./themePDS";
 import { ProfileManager } from "./profile";
 import { PostManager } from "./posts";
 import { Top8Manager } from "./top8";
 
-// Initialize managers
-window.managers = {}; // Create empty object first
+window.managers = {};
 
-// Create AuthManager first since others depend on it
+console.debug("[index.js] Initializing AuthManager");
 window.managers.authManager = new AuthManager();
 
-// Then create the rest of the managers using the authManager instance
-window.managers.profileManager = new ProfileManager(
-	window.managers.authManager,
-);
+console.debug("[index.js] Initializing ProfileManager");
+window.managers.profileManager = new ProfileManager(window.managers.authManager);
+
+console.debug("[index.js] Initializing PDSThemeManager");
 window.managers.themeManager = new PDSThemeManager(window.managers.authManager);
+
+console.debug("[index.js] Initializing PostManager");
 window.managers.postsManager = new PostManager();
+
+console.debug("[index.js] Initializing Top8Manager");
 window.managers.top8Manager = new Top8Manager(window.managers.authManager);
 
-// Now import Alpine components that will use these instances
 import "./alpine/alpine-core";
 import "./alpine/alpine-auth";
 import "./alpine/alpine-theme";
 import "./alpine/alpine-posts";
 import "./alpine/alpine-top8";
 
-// Initialize Alpine
+console.debug("[index.js] Starting Alpine.js");
 window.Alpine = Alpine;
 Alpine.start();

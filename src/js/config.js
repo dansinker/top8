@@ -1,4 +1,3 @@
-// Constants and Configuration
 export const CONFIG = {
 	API: {
 		BASE_URL: "https://bsky.social/xrpc",
@@ -28,3 +27,5 @@ export const CONFIG = {
 		CACHE_DURATION: 5 * 60 * 1000, // 5 minutes in milliseconds
 	},
 };
+
+console.debug("[CONFIG] Configuration object initialized", CONFIG);

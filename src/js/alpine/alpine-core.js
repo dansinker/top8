@@ -4,7 +4,6 @@ import { ProfileManager } from "../profile";
 import { PDSThemeManager } from "../themePDS";
 import { PostManager } from "../posts";
 import { Top8Manager } from "../top8";
-import { StorageManager } from "../storage";
 
 document.addEventListener("alpine:init", () => {
   // Create instances of our managers

@@ -7,8 +7,6 @@ import "./storage";
 
 // Import managers
 import { AuthManager } from "./auth";
-import { PDSRecordManager } from "./pds";
-import { ThemeManager } from "./theme";
 import { PDSThemeManager } from "./themePDS";
 import { ProfileManager } from "./profile";
 import { PostManager } from "./posts";
@@ -22,7 +20,7 @@ window.managers.authManager = new AuthManager();
 
 // Then create the rest of the managers using the authManager instance
 window.managers.profileManager = new ProfileManager(
-  window.managers.authManager,
+    window.managers.authManager,
 );
 window.managers.themeManager = new PDSThemeManager(window.managers.authManager);
 window.managers.postsManager = new PostManager();

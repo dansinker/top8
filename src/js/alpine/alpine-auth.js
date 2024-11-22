@@ -1,5 +1,4 @@
 import { StorageManager } from "../storage";
-import { CONFIG } from "../config";
 
 // Authentication component registration
 document.addEventListener("alpine:init", () => {

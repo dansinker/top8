@@ -1,4 +1,3 @@
-// Top8 component registration
 document.addEventListener("alpine:init", () => {
 	Alpine.data("top8", () => ({
 		friends: [],
@@ -6,6 +5,8 @@ document.addEventListener("alpine:init", () => {
 		searchResults: [],
 		selectedFriends: [],
 		showDialog: false,
+		showAllFriendsModal: false,
+		allFriends: [],
 		loading: false,
 		error: null,
 
@@ -91,6 +92,23 @@ document.addEventListener("alpine:init", () => {
 			} finally {
 				this.loading = false;
 			}
+		},
+
+		async fetchAllFriends() {
+			try {
+				this.loading = true;
+				this.error = null;
+				this.allFriends = await window.managers.top8Manager.loadAllFollows();
+			} catch (error) {
+				console.error("Failed to fetch all friends:", error);
+				this.error = `Failed to fetch all friends: ${error.message}`;
+			} finally {
+				this.loading = false;
+			}
+		},
+
+		closeAllFriendsModal() {
+			this.showAllFriendsModal = false;
 		},
 	}));
 });

@@ -30,7 +30,8 @@ export class Top8Manager {
 
 		try {
 			// First, ensure the list exists
-			const list = await this.getOrCreateList();
+			const _list = await this.getOrCreateList();
+			
 			this.listUri = `at://${this.pds.authManager.did}/${this.recordType}/${this.recordKey}`;
 
 			// Then get all list items

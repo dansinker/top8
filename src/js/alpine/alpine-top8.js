@@ -1,4 +1,3 @@
-// Top8 component registration
 document.addEventListener("alpine:init", () => {
 	Alpine.data("top8", () => ({
 		friends: [],

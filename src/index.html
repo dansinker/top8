@@ -170,6 +170,13 @@
                             >
                                 Edit Top 8
                             </button>
+                            <a
+                                href="#"
+                                @click.prevent="showAllFriendsModal = true"
+                                class="text-sm px-3 py-1 primary-button"
+                            >
+                                Show All Friends
+                            </a>
                         </div>
 
                         <!-- Friends Grid -->
@@ -264,6 +271,53 @@
                                             :disabled="loading"
                                         >
                                             Save Changes
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- All Friends Modal -->
+                        <div
+                            x-show="showAllFriendsModal"
+                            class="dialog-overlay"
+                            @click="showAllFriendsModal = false"
+                        >
+                            <div class="dialog-content" @click.stop>
+                                <div class="section-header mb-4">
+                                    All Friends
+                                </div>
+                                <div class="space-y-4">
+                                    <div class="max-h-96 overflow-y-auto">
+                                        <template
+                                            x-for="friend in allFriends"
+                                            :key="friend.uniqueId"
+                                        >
+                                            <div class="friend-item">
+                                                <img
+                                                    :src="friend.avatar || '/api/placeholder/40/40'"
+                                                    :alt="friend.displayName"
+                                                    class="friend-avatar"
+                                                />
+                                                <div>
+                                                    <div
+                                                        x-text="friend.displayName"
+                                                        class="font-bold themed-text"
+                                                    ></div>
+                                                    <div
+                                                        x-text="friend.handle"
+                                                        class="text-sm text-gray-500"
+                                                    ></div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                    <div class="flex justify-end gap-2">
+                                        <button
+                                            @click="showAllFriendsModal = false"
+                                            class="px-4 py-2 border rounded hover:bg-gray-50"
+                                        >
+                                            Close
                                         </button>
                                     </div>
                                 </div>

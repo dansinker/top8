@@ -108,8 +108,7 @@ export class Top8Manager {
 				.filter(
 					(follow) =>
 						follow.handle.toLowerCase().includes(searchQuery) ||
-						(follow.displayName &&
-							follow.displayName.toLowerCase().includes(searchQuery)),
+						(follow.displayName?.toLowerCase().includes(searchQuery)),
 				)
 				.map((follow, index) => ({
 					...follow,

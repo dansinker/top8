@@ -111,7 +111,7 @@ document.addEventListener("alpine:init", () => {
 				}
 			} catch (error) {
 				console.error("[Logout] Error during logout:", error);
-				throw new Error("Logout failed: " + error.message);
+				throw new Error(`Logout failed: ${error.message}`);
 			}
 		},
 	}));

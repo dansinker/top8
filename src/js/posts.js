@@ -206,9 +206,8 @@ export class PostManager {
 				} else {
 					// Wait before retry with exponential backoff
 					await new Promise((resolve) =>
-						setTimeout(resolve, Math.pow(2, attempts) * 1000),
+						setTimeout(resolve, 2 ** attempts * 1000),
 					);
-					continue;
 				}
 			}
 		}

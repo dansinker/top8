@@ -72,7 +72,7 @@ document.addEventListener("alpine:init", () => {
 				this.lastHandle = handle;
 			} catch (error) {
 				console.error("[Posts Component] Error loading posts:", error);
-				this.error = "Failed to load posts: " + error.message;
+				this.error = `Failed to load posts: ${error.message}`;
 				this.blogs = [];
 			} finally {
 				this.loading = false;

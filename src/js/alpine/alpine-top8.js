@@ -34,7 +34,7 @@ document.addEventListener("alpine:init", () => {
 				Alpine.store("state").setTop8Friends(friends);
 			} catch (error) {
 				console.error("Failed to load friends:", error);
-				this.error = "Failed to load friends: " + error.message;
+				this.error = `Failed to load friends: ${error.message}`;
 			} finally {
 				this.loading = false;
 			}
@@ -54,7 +54,7 @@ document.addEventListener("alpine:init", () => {
 				);
 			} catch (error) {
 				console.error("Search failed:", error);
-				this.error = "Search failed: " + error.message;
+				this.error = `Search failed: ${error.message}`;
 			} finally {
 				this.loading = false;
 			}
@@ -87,7 +87,7 @@ document.addEventListener("alpine:init", () => {
 				this.showDialog = false;
 			} catch (error) {
 				console.error("Failed to save friends:", error);
-				this.error = "Failed to save friends: " + error.message;
+				this.error = `Failed to save friends: ${error.message}`;
 			} finally {
 				this.loading = false;
 			}

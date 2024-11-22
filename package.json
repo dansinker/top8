@@ -12,7 +12,8 @@
 		"lint": "eslint 'src/**/*.js'"
 	},
 	"dependencies": {
-		"alpinejs": "^3.14.3"
+		"alpinejs": "^3.14.3",
+		"svgo": "^3.3.2"
 	},
 	"devDependencies": {
 		"parcel": "^2.13.0",

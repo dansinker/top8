@@ -4,57 +4,57 @@
 @tailwind utilities;
 
 @layer components {
-  .color-choice {
-    @apply h-8 w-8 rounded-full border border-black inline-block mr-1 cursor-pointer hover:border-white;
-  }
+	.color-choice {
+		@apply h-8 w-8 rounded-full border border-black inline-block mr-1 cursor-pointer hover:border-white;
+	}
 
-  .dialog-overlay {
-    @apply fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center;
-  }
+	.dialog-overlay {
+		@apply fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center;
+	}
 
-  .dialog-content {
-    @apply bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-4;
-  }
+	.dialog-content {
+		@apply bg-white p-6 rounded-lg shadow-lg max-w-lg w-full mx-4;
+	}
 
-  .friend-item {
-    @apply flex items-center p-3 border rounded-lg mb-2 cursor-pointer transition-all hover:bg-gray-50;
-  }
+	.friend-item {
+		@apply flex items-center p-3 border rounded-lg mb-2 cursor-pointer transition-all hover:bg-gray-50;
+	}
 
-  .friend-item.selected {
-    @apply border-blue-500 bg-blue-50;
-  }
+	.friend-item.selected {
+		@apply border-blue-500 bg-blue-50;
+	}
 
-  .friend-item .avatar {
-    @apply w-10 h-10 rounded-full mr-3;
-  }
+	.friend-item .avatar {
+		@apply w-10 h-10 rounded-full mr-3;
+	}
 
-  .friend-info {
-    @apply flex flex-col;
-  }
+	.friend-info {
+		@apply flex flex-col;
+	}
 
-  .handle {
-    @apply text-sm text-gray-600;
-  }
+	.handle {
+		@apply text-sm text-gray-600;
+	}
 
-  .dialog-buttons {
-    @apply mt-4 flex justify-end gap-2;
-  }
+	.dialog-buttons {
+		@apply mt-4 flex justify-end gap-2;
+	}
 
-  .error-message {
-    @apply text-red-500 my-2 p-2 bg-red-50 rounded-md;
-  }
+	.error-message {
+		@apply text-red-500 my-2 p-2 bg-red-50 rounded-md;
+	}
 
-  .friends-grid {
-    @apply grid grid-cols-2 md:grid-cols-4 gap-4 mt-4;
-  }
+	.friends-grid {
+		@apply grid grid-cols-2 md:grid-cols-4 gap-4 mt-4;
+	}
 
-  .loading-indicator {
-    @apply mt-2 text-sm text-gray-600;
-  }
+	.loading-indicator {
+		@apply mt-2 text-sm text-gray-600;
+	}
 
-  .progress-note {
-    @apply text-xs opacity-80 mt-1;
-  }
+	.progress-note {
+		@apply text-xs opacity-80 mt-1;
+	}
 }
 
 /* Theme Classes */
